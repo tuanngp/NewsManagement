@@ -1,0 +1,195 @@
+﻿@model BusinessObjects.Models.NewsArticle
+@{
+    ViewData["Title"] = Model?.NewsTitle ?? "News Article";
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background: #f5f5f5;
+            color: #1f2937;
+            line-height: 1.6;
+        }
+
+        .news-container {
+            max-width: 900px;
+            margin: 2rem auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+        }
+
+        .news-header {
+            padding: 2rem;
+            background: linear-gradient(135deg, #4f46e5, #7c3aed);
+            color: white;
+            position: relative;
+        }
+
+        .news-title {
+            font-size: 2.25rem;
+            font-weight: 700;
+            margin-bottom: 0.75rem;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .news-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+            font-size: 0.95rem;
+            opacity: 0.9;
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .news-content {
+            padding: 2rem;
+        }
+
+        .news-headline {
+            font-size: 1.25rem;
+            color: #4b5563;
+            font-style: italic;
+            margin-bottom: 1.5rem;
+            border-left: 4px solid #4f46e5;
+            padding-left: 1rem;
+        }
+
+        .news-body {
+            font-size: 1.1rem;
+            color: #374151;
+            margin-bottom: 2rem;
+            white-space: pre-wrap;
+        }
+
+        .news-footer {
+            padding: 1.5rem 2rem;
+            border-top: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #fafafa;
+        }
+
+        .status-badge {
+            padding: 0.35rem 1rem;
+            border-radius: 9999px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            background: @(Model?.NewsStatus ?? false ? "#dcfce7" : Model?.NewsStatus ?? false ? "#fef3c7" : "#fee2e2");
+            color: @(Model?.NewsStatus ?? false ? "#166534" : Model?.NewsStatus ?? false ? "#92400e" : "#991b1b");
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-back {
+            background: #f3f4f6;
+            color: #374151;
+        }
+
+            .btn-back:hover {
+                background: #e5e7eb;
+                color: #1f2937;
+                transform: translateY(-1px);
+            }
+
+        .btn-edit {
+            background: #4f46e5;
+            color: white;
+        }
+
+            .btn-edit:hover {
+                background: #4338ca;
+                transform: translateY(-1px);
+                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+    </style>
+</head>
+<body>
+    <div class="news-container fade-in">
+        <div class="news-header">
+            <h1 class="news-title">@Model?.NewsTitle</h1>
+            <div class="news-meta">
+                <div class="meta-item">
+                    <i class="fas fa-calendar-alt"></i>
+                    <span>@Model?.CreatedDate?.ToString("dd/MM/yyyy HH:mm")</span>
+                </div>
+                <div class="meta-item">
+                    <i class="fas fa-user"></i>
+                    <span>@Model?.CreatedBy?.AccountId</span>
+                </div>
+                <div class="meta-item">
+                    <i class="fas fa-folder"></i>
+                    <span>@Model?.Category?.CategoryDesciption</span>
+                </div>
+                <div class="meta-item">
+                    <i class="fas fa-link"></i>
+                    <span>@Model?.NewsSource</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="news-content">
+            <div class="news-headline">@Model?.Headline</div>
+            <div class="news-body">@Model?.NewsContent</div>
+        </div>
+
+        @if (User.IsInRole("Staff"))
+        {
+            <div class="news-footer">
+                <span class="status-badge">@(Model?.NewsStatus ?? false ? "Xuất bản" : "Nháp")</span>
+                <div class="action-buttons">
+                    <a asp-action="Edit" asp-route-id="@Model?.NewsArticleId" class="btn btn-edit">
+                        <i class="fas fa-edit"></i> Edit
+                    </a>
+                    <a asp-action="Index" class="btn btn-back">
+                        <i class="fas fa-arrow-left"></i> Back to List
+                    </a>
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="news-footer">
+                <div class="action-buttons">
+                    <a href="/Home" class="btn btn-back">
+                        <i class="fas fa-arrow-left"></i> Back to List
+                    </a>
+                </div>
+            </div>
+        }
+
+    </div>
+</body>
+</html>

@@ -1,0 +1,80 @@
+﻿@model BusinessObjects.Models.SystemAccount
+
+<div class="login-container">
+    <h2>Đăng nhập</h2>
+    <form asp-action="Login" method="post">
+        <input type="hidden" name="returnUrl" value="@ViewData["ReturnUrl"]" />
+        <div class="form-group">
+            <label asp-for="AccountEmail">Email</label>
+            <input asp-for="AccountEmail" class="form-control" />
+            <span asp-validation-for="AccountEmail" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="AccountPassword">Mật khẩu</label>
+            <input asp-for="AccountPassword" type="password" class="form-control" />
+            <span asp-validation-for="AccountPassword" class="text-danger"></span>
+        </div>
+        @if (!string.IsNullOrEmpty(ViewBag.Error))
+        {
+            <div class="alert alert-danger">@ViewBag.Error</div>
+        }
+        <button type="submit" class="btn btn-primary">Đăng nhập</button>
+    </form>
+    <div class="social-login">
+        <a asp-action="GoogleLogin" asp-controller="SystemAccounts" class="btn btn-google">
+            <i class="fab fa-google"></i> Đăng nhập bằng Google
+        </a>
+    </div>
+</div>
+
+<style>
+    .login-container {
+        max-width: 400px;
+        margin: 5rem auto;
+        padding: 2rem;
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .btn-primary {
+        width: 100%;
+        padding: 0.75rem;
+        background: #3498db;
+        border: none;
+    }
+
+        .btn-primary:hover {
+            background: #2980b9;
+        }
+
+    .social-login {
+        margin-top: 1rem;
+        text-align: center;
+    }
+
+    .btn-google {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        padding: 0.75rem;
+        background: #4285f4;
+        color: white;
+        text-decoration: none;
+        border-radius: 6px;
+        transition: background 0.3s ease;
+    }
+
+        .btn-google i {
+            margin-right: 0.5rem;
+        }
+
+        .btn-google:hover {
+            background: #3267d6;
+        }
+</style>

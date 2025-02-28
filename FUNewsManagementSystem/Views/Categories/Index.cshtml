@@ -1,0 +1,238 @@
+﻿@model IEnumerable<BusinessObjects.Models.Category>
+@{
+    ViewData["Title"] = "Category Management";
+}
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+<style>
+    :root {
+        --primary-color: #4f46e5;
+        --secondary-color: #6366f1;
+        --success-color: #22c55e;
+        --info-color: #3b82f6;
+        --danger-color: #ef4444;
+        --background-color: #f9fafb;
+    }
+
+    body {
+        background-color: var(--background-color);
+        font-family: 'Inter', sans-serif;
+    }
+
+    .table-container {
+        max-width: 1200px;
+        margin: 2rem auto;
+        padding: 2rem;
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+    }
+
+    .page-title {
+        color: #1f2937;
+        font-size: 2rem;
+        font-weight: 600;
+        margin-bottom: 2rem;
+        position: relative;
+        padding-bottom: 0.5rem;
+    }
+
+        .page-title::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 60px;
+            height: 4px;
+            background: var(--primary-color);
+            border-radius: 2px;
+        }
+
+    .custom-table {
+        border-radius: 12px;
+        overflow: hidden;
+        border: 1px solid #e5e7eb;
+    }
+
+        .custom-table thead {
+            background: var(--primary-color);
+        }
+
+        .custom-table th {
+            font-weight: 500;
+            text-transform: uppercase;
+            font-size: 0.875rem;
+            letter-spacing: 0.05em;
+        }
+
+        .custom-table tbody tr {
+            transition: all 0.3s ease;
+        }
+
+            .custom-table tbody tr:hover {
+                background-color: #f3f4f6;
+                transform: translateY(-1px);
+            }
+
+        .custom-table td {
+            vertical-align: middle;
+            color: #4b5563;
+        }
+
+    .create-btn {
+        background: var(--primary-color);
+        color: white;
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        font-weight: 500;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.3s ease;
+        margin-bottom: 1.5rem;
+    }
+
+        .create-btn:hover {
+            background: var(--secondary-color);
+            color: white;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+    .btn-custom {
+        padding: 0.5rem 1rem;
+        border-radius: 6px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        border: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+    }
+
+    .btn-edit {
+        background: var(--success-color);
+        color: white;
+    }
+
+    .btn-details {
+        background: var(--info-color);
+        color: white;
+    }
+
+    .btn-delete {
+        background: var(--danger-color);
+        color: white;
+    }
+
+    .btn-custom:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        color: white;
+        opacity: 0.9;
+    }
+
+    .status-badge {
+        padding: 0.25rem 0.75rem;
+        border-radius: 9999px;
+        font-size: 0.875rem;
+        font-weight: 500;
+    }
+
+    .status-active {
+        background: #dcfce7;
+        color: #166534;
+    }
+
+    .status-inactive {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+
+    .table-empty {
+        text-align: center;
+        padding: 3rem;
+        color: #6b7280;
+    }
+
+    /* Animation classes */
+    .fade-in {
+        animation: fadeIn 0.5s ease-in;
+    }
+</style>
+
+<div class="table-container fade-in">
+    <h1 class="page-title">Category Management</h1>
+
+    <a asp-action="Create" class="create-btn">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+        </svg>
+        Create New Category
+    </a>
+
+    @if (!Model.Any())
+    {
+        <div class="table-empty">
+            <p>No categories found. Create your first category to get started.</p>
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-striped custom-table">
+                <thead>
+                    <tr>
+                        <th class="py-3 px-4">@Html.DisplayNameFor(model => model.CategoryName)</th>
+                        <th class="py-3 px-4">@Html.DisplayNameFor(model => model.CategoryDesciption)</th>
+                        <th class="py-3 px-4">@Html.DisplayNameFor(model => model.IsActive)</th>
+                        <th class="py-3 px-4">@Html.DisplayNameFor(model => model.ParentCategory)</th>
+                        <th class="py-3 px-4">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td class="py-3 px-4">@Html.DisplayFor(modelItem => item.CategoryName)</td>
+                            <td class="py-3 px-4">@Html.DisplayFor(modelItem => item.CategoryDesciption)</td>
+                            <td class="py-3 px-4">
+                                <span class="status-badge @(item.IsActive ?? false ? "status-active" : "status-inactive")">
+                                    @(item.IsActive ?? false ? "Active" : "Inactive")
+                                </span>
+                            </td>
+                            <td class="py-3 px-4">
+                                @Html.DisplayFor(modelItem => item.ParentCategory.CategoryName)
+                            </td>
+                            <td class="py-3 px-4">
+                                <div class="d-flex gap-2">
+                                    <a asp-action="Edit" asp-route-id="@item.CategoryId" class="btn-custom btn-edit">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                        </svg>
+                                        Edit
+                                    </a>
+                                    <a asp-action="Details" asp-route-id="@item.CategoryId" class="btn-custom btn-details">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                        </svg>
+                                        Details
+                                    </a>
+                                    <a asp-action="Delete" asp-route-id="@item.CategoryId" class="btn-custom btn-delete">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                        </svg>
+                                        Delete
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>

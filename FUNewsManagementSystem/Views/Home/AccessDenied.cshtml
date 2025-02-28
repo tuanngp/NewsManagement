@@ -1,0 +1,25 @@
+﻿<div class="access-denied">
+    <h1>Truy cập bị từ chối</h1>
+    <p>Bạn không có quyền truy cập vào trang này.</p>
+    <a asp-controller="SystemAccounts" asp-action="Index" class="btn btn-primary">Quay lại</a>
+</div>
+
+<style>
+    .access-denied {
+        text-align: center;
+        padding: 5rem;
+        background: #fff;
+        border-radius: 10px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        margin: 5rem auto;
+        max-width: 500px;
+    }
+    .btn-primary {
+        padding: 0.75rem 1.5rem;
+        background: #3498db;
+        border: none;
+    }
+    .btn-primary:hover {
+        background: #2980b9;
+    }
+</style>

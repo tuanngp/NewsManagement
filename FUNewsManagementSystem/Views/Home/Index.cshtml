@@ -1,0 +1,1007 @@
+﻿@using FUNewsManagementSystem.Controllers
+@model NewsIndexViewModel
+@{
+    ViewData["Title"] = "Tin tức";
+}
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f2f5;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+            display: flex;
+            gap: 2rem;
+        }
+
+        /* Left Sidebar Styles */
+        .sidebar {
+            width: 280px;
+            flex-shrink: 0;
+        }
+
+        .filter-panel {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            position: sticky;
+            top: 1rem;
+        }
+
+        .filter-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+            .filter-header h3 {
+                font-size: 1.2rem;
+                color: #2c3e50;
+                margin: 0;
+                font-weight: 600;
+            }
+
+        .filter-reset {
+            background: none;
+            border: none;
+            color: #007bff;
+            cursor: pointer;
+            font-size: 0.85rem;
+            padding: 0;
+        }
+
+            .filter-reset:hover {
+                text-decoration: underline;
+            }
+
+        .filter-group {
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 1.5rem;
+        }
+
+            .filter-group:last-child {
+                border-bottom: none;
+                margin-bottom: 0;
+                padding-bottom: 0;
+            }
+
+            .filter-group h4 {
+                font-size: 1rem;
+                color: #495057;
+                margin: 0 0 1rem;
+                font-weight: 500;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                cursor: pointer;
+            }
+
+                .filter-group h4 i {
+                    transition: transform 0.3s ease;
+                }
+
+                .filter-group h4.collapsed i {
+                    transform: rotate(-90deg);
+                }
+
+        .filter-content {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        /* Category Hierarchy Styles */
+        .category-list {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .category-item {
+            margin-bottom: 0.75rem;
+        }
+
+        .category-parent {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.95rem;
+            color: #495057;
+            padding: 0.25rem 0;
+            font-weight: 500;
+        }
+
+            .category-parent .filter-checkbox {
+                flex: 1;
+            }
+
+        .category-parent {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.95rem;
+            color: #495057;
+            cursor: pointer;
+            padding: 0.25rem 0;
+            font-weight: 500;
+        }
+
+            .category-parent i {
+                font-size: 0.8rem;
+                transition: transform 0.3s ease;
+            }
+
+            .category-parent.expanded i {
+                transform: rotate(90deg);
+            }
+
+        .subcategory-list {
+            list-style-type: none;
+            padding-left: 1.5rem;
+            margin: 0.5rem 0 0.75rem;
+            display: none;
+        }
+
+            .subcategory-list.show {
+                display: block;
+            }
+
+        .subcategory-item {
+            margin-bottom: 0.5rem;
+        }
+
+        .filter-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+            padding: 0.25rem 0;
+        }
+
+            .filter-checkbox label {
+                font-size: 0.9rem;
+                color: #6c757d;
+                cursor: pointer;
+                user-select: none;
+                display: flex;
+                align-items: center;
+                width: 100%;
+            }
+
+            .filter-checkbox input[type="checkbox"] {
+                cursor: pointer;
+                margin: 0;
+            }
+
+            .filter-checkbox .count {
+                margin-left: auto;
+                font-size: 0.8rem;
+                color: #adb5bd;
+                background-color: #f0f2f5;
+                padding: 0.1rem 0.4rem;
+                border-radius: 10px;
+            }
+
+        .date-filter input {
+            width: 100%;
+            padding: 0.65rem;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .filter-search {
+            margin-bottom: 1rem;
+            position: relative;
+        }
+
+            .filter-search input {
+                width: 100%;
+                padding: 0.65rem 0.75rem 0.65rem 2rem;
+                border: 1px solid #ddd;
+                border-radius: 8px;
+                font-size: 0.9rem;
+            }
+
+            .filter-search i {
+                position: absolute;
+                left: 0.75rem;
+                top: 50%;
+                transform: translateY(-50%);
+                color: #adb5bd;
+                font-size: 0.9rem;
+            }
+
+        /* Main Content Styles */
+        .main-content {
+            flex: 1;
+        }
+
+        .header {
+            text-align: left;
+            margin-bottom: 2rem;
+        }
+
+            .header h1 {
+                font-size: 2.2rem;
+                color: #1a1a1a;
+                margin: 0;
+                font-weight: 600;
+            }
+
+        .search-sort-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .search-container {
+            flex: 1;
+            min-width: 280px;
+            position: relative;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 0.75rem 1rem 0.75rem 2.5rem;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+            .search-input:focus {
+                border-color: #007bff;
+                box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+            }
+
+        .search-icon {
+            position: absolute;
+            left: 0.75rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #6c757d;
+        }
+
+        .sort-container {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        .sort-label {
+            font-size: 0.95rem;
+            color: #495057;
+            font-weight: 500;
+        }
+
+        .sort-select {
+            padding: 0.65rem;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            outline: none;
+            background-color: white;
+            cursor: pointer;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+            .sort-select:focus {
+                border-color: #007bff;
+                box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+            }
+
+        /* Active Filter Tags */
+        .filter-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .filter-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background-color: #e9f3ff;
+            padding: 0.5rem 0.75rem;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            color: #007bff;
+        }
+
+            .filter-tag button {
+                background: none;
+                border: none;
+                color: #007bff;
+                cursor: pointer;
+                font-size: 0.9rem;
+                padding: 0;
+                display: flex;
+                align-items: center;
+            }
+
+        /* News Grid Styles */
+        .news-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .news-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+            .news-card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+            }
+
+        .news-image {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+            background-color: #e9ecef;
+        }
+
+        .news-content {
+            padding: 1.25rem;
+        }
+
+        .news-title {
+            font-size: 1.15rem;
+            color: #2c3e50;
+            margin: 0 0 0.5rem;
+            line-height: 1.4;
+            font-weight: 600;
+        }
+
+        .news-headline {
+            font-size: 0.9rem;
+            color: #6c757d;
+            margin: 0 0 1rem;
+            line-height: 1.5;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .news-meta {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            color: #adb5bd;
+        }
+
+            .news-meta span {
+                display: flex;
+                align-items: center;
+                gap: 0.25rem;
+            }
+
+        .read-more {
+            display: inline-block;
+            margin-top: 1rem;
+            padding: 0.5rem 1rem;
+            background-color: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            transition: background-color 0.2s ease;
+        }
+
+            .read-more:hover {
+                background-color: #0056b3;
+            }
+
+        .no-results {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 3rem;
+            background: white;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            color: #6c757d;
+        }
+
+        .news-category {
+            display: inline-block;
+            background-color: #e9f3ff;
+            padding: 0.3rem 0.6rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            color: #007bff;
+            margin-bottom: 0.75rem;
+        }
+
+        .news-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.4rem;
+            margin-top: 0.75rem;
+        }
+
+        .news-tag {
+            background-color: #f0f2f5;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            color: #6c757d;
+        }
+
+        /* Pagination Styles */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 2rem;
+            padding: 1rem 0;
+        }
+
+        .pagination-btn {
+            padding: 0.5rem 1rem;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            background-color: white;
+            color: #495057;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+        }
+
+            .pagination-btn:hover:not(.disabled) {
+                background-color: #007bff;
+                color: white;
+                border-color: #007bff;
+            }
+
+            .pagination-btn.active {
+                background-color: #007bff;
+                color: white;
+                border-color: #007bff;
+                cursor: default;
+            }
+
+            .pagination-btn.disabled {
+                color: #adb5bd;
+                cursor: not-allowed;
+                background-color: #f8f9fa;
+            }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <aside class="sidebar">
+            <div class="filter-panel">
+                <div class="filter-header">
+                    <h3>Bộ lọc</h3>
+                    <button class="filter-reset" id="resetAllFilters">Đặt lại tất cả</button>
+                </div>
+
+                <!-- Category Filter with Hierarchy -->
+                <div class="filter-group">
+                    <h4 data-toggle="category-content">
+                        Danh mục
+                        <i class="fas fa-chevron-down"></i>
+                    </h4>
+                    <div class="filter-content" id="category-content">
+                        <div class="filter-search">
+                            <i class="fas fa-search"></i>
+                            <input type="text" id="categorySearch" placeholder="Tìm danh mục...">
+                        </div>
+                        <ul class="category-list">
+                            @foreach (var parentCat in Model.Categories.Where(c => c.ParentCategory == null).Select(c => c.CategoryName).Distinct())
+                            {
+                                <li class="category-item">
+                                    <div class="category-parent" data-category="@parentCat.ToLower()">
+                                        <div class="filter-checkbox">
+                                            <input type="checkbox"
+                                                   id="parentcat_@parentCat.ToLower().Replace(" ", "_")"
+                                                   data-filter="parentCategory"
+                                                   value="@parentCat">
+                                            <label for="parentcat_@parentCat.ToLower().Replace(" ", "_")">
+                                                @parentCat
+                                            </label>
+                                        </div>
+                                        <i class="fas fa-chevron-right"></i>
+                                    </div>
+                                    <ul class="subcategory-list" data-parent="@parentCat.ToLower()">
+                                        @foreach (var subCat in Model.Categories.Where(c => c.ParentCategory?.CategoryName == parentCat))
+                                        {
+                                            <li class="subcategory-item">
+                                                <div class="filter-checkbox">
+                                                    <input type="checkbox"
+                                                           id="cat_@subCat.CategoryName.ToLower().Replace(" ", "_")"
+                                                           data-filter="category"
+                                                           value="@subCat.CategoryName">
+                                                    <label for="cat_@subCat.CategoryName.ToLower().Replace(" ", "_")">
+                                                        @subCat.CategoryName
+                                                    </label>
+                                                </div>
+                                            </li>
+                                        }
+                                    </ul>
+                                </li>
+                            }
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="filter-group">
+                    <h4 data-toggle="date-content">
+                        Ngày đăng
+                        <i class="fas fa-chevron-down"></i>
+                    </h4>
+                    <div class="filter-content" id="date-content">
+                        <div class="date-filter">
+                            <input type="date" id="startDate" placeholder="Từ ngày">
+                            <input type="date" id="endDate" placeholder="Đến ngày">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="filter-group">
+                    <h4 data-toggle="tags-content">
+                        Thẻ
+                        <i class="fas fa-chevron-down"></i>
+                    </h4>
+                    <div class="filter-content" id="tags-content">
+                        <div class="filter-search">
+                            <i class="fas fa-search"></i>
+                            <input type="text" id="tagSearch" placeholder="Tìm thẻ...">
+                        </div>
+                        @foreach (var tag in Model.Tags)
+                        {
+                            <div class="filter-checkbox">
+                                <input type="checkbox"
+                                       id="tag_@tag.?TagName.ToLower().Replace(" ", "_")"
+                                       data-filter="tag"
+                                       value="@tag.TagName">
+                                <label for="tag_@tag.?TagName.ToLower().Replace(" ", "_")">
+                                    @tag.TagName
+                                </label>
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                <div class="filter-group">
+                    <h4 data-toggle="author-content">
+                        Tác giả
+                        <i class="fas fa-chevron-down"></i>
+                    </h4>
+                    <div class="filter-content" id="author-content">
+                        <div class="filter-search">
+                            <i class="fas fa-search"></i>
+                            <input type="text" id="authorSearch" placeholder="Tìm tác giả...">
+                        </div>
+                        @foreach (var author in Model.Authors)
+                        {
+                            <div class="filter-checkbox">
+                                <input type="checkbox"
+                                       id="author_@author.?AccountName.ToLower().Replace(" ", "_")"
+                                       data-filter="author"
+                                       value="@author.AccountName">
+                                <label for="author_@author.?AccountName.ToLower().Replace(" ", "_")">
+                                    @author.AccountName
+                                    <span class="count">@Model.NewsArticles.Count(n => n.CreatedBy == author)</span>
+                                </label>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <div class="header">
+                <h1>Tin tức mới nhất</h1>
+            </div>
+
+            <div class="search-sort-container">
+                <div class="search-container">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" id="searchInput" class="search-input" placeholder="Tìm kiếm tin tức...">
+                </div>
+                <div class="sort-container">
+                    <span class="sort-label">Sắp xếp theo:</span>
+                    <select id="sortSelect" class="sort-select">
+                        <option value="newest">Mới nhất</option>
+                        <option value="oldest">Cũ nhất</option>
+                        <option value="titleAsc">Tiêu đề (A-Z)</option>
+                        <option value="titleDesc">Tiêu đề (Z-A)</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="filter-tags" id="activeFilters"></div>
+
+            <div class="news-grid" id="newsGrid">
+                @foreach (var item in Model.NewsArticles)
+                {
+                    <div class="news-card"
+                         data-title="@item.NewsTitle?.ToLower()"
+                         data-date="@(item.CreatedDate?.ToString("yyyyMMdd") ?? "0")"
+                         data-created-by="@item.CreatedBy?.AccountName"
+                         data-category="@item.Category?.CategoryName"
+                         data-parent-category="@(item.Category?.ParentCategory?.CategoryName ?? item.Category?.CategoryName)"
+                         data-tags="@(item.Tags != null ? string.Join(",", item.Tags.Select(t => t.TagName)) : "")">
+                        <div class="news-image">
+                            <img style="width: 100%;height: 100%;" src="https://th.bing.com/th/id/OIP.leQLmjT3_29TcyW5dkj2mQHaE8?rs=1&pid=ImgDetMain" />
+                        </div>
+                        <div class="news-content">
+                            @if (item.Category != null)
+                            {
+                                <div class="news-category">@(item.Category.ParentCategory != null ? item.Category.ParentCategory.CategoryName + " > " : "" ) @item.Category.CategoryName</div>
+                            }
+                            <h2 class="news-title">@item.NewsTitle</h2>
+                            <p class="news-headline">@item.Headline</p>
+                            <div class="news-meta">
+                                <span><i class="fas fa-calendar-alt"></i> @item.CreatedDate?.ToString("dd/MM/yyyy")</span>
+                                <span><i class="fas fa-user"></i> @item.CreatedBy?.AccountName</span>
+                            </div>
+                            @if (item.Tags != null && item.Tags.Any())
+                            {
+                                <div class="news-tags">
+                                    @foreach (var tag in item.Tags)
+                                    {
+                                        <span class="news-tag">#@tag.TagName</span>
+                                    }
+                                </div>
+                            }
+                            <a href="@Url.Action("Details", "News", new { id = item.NewsArticleId })" class="read-more">Đọc thêm</a>
+                        </div>
+                    </div>
+                }
+            </div>
+            <div class="pagination" id="pagination"></div>
+        </main>
+    </div>
+    </body>
+</html>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const searchInput = document.getElementById('searchInput');
+        const sortSelect = document.getElementById('sortSelect');
+        const newsGrid = document.getElementById('newsGrid');
+        const newsCards = document.querySelectorAll('.news-card');
+        const activeFilters = document.getElementById('activeFilters');
+        const resetAllFilters = document.getElementById('resetAllFilters');
+        const startDate = document.getElementById('startDate');
+        const endDate = document.getElementById('endDate');
+
+        const categorySearch = document.getElementById('categorySearch');
+        const tagSearch = document.getElementById('tagSearch');
+        const authorSearch = document.getElementById('authorSearch');
+
+        const ITEMS_PER_PAGE = 4; // Số bài viết mỗi trang
+        let currentPage = 1;
+        function createPagination(totalItems) {
+            const pagination = document.getElementById('pagination');
+            const pageCount = Math.ceil(totalItems / ITEMS_PER_PAGE);
+
+            pagination.innerHTML = '';
+
+            if (pageCount <= 1) return;
+
+            const prevBtn = document.createElement('button');
+            prevBtn.className = 'pagination-btn';
+            prevBtn.textContent = '«';
+            prevBtn.disabled = currentPage === 1;
+            prevBtn.classList.toggle('disabled', currentPage === 1);
+            prevBtn.addEventListener('click', () => {
+                if (currentPage > 1) {
+                    currentPage--;
+                    updateNewsDisplay();
+                }
+            });
+            pagination.appendChild(prevBtn);
+
+            for (let i = 1; i <= pageCount; i++) {
+                const pageBtn = document.createElement('button');
+                pageBtn.className = 'pagination-btn';
+                pageBtn.textContent = i;
+                pageBtn.classList.toggle('active', i === currentPage);
+                pageBtn.addEventListener('click', () => {
+                    currentPage = i;
+                    updateNewsDisplay();
+                });
+                pagination.appendChild(pageBtn);
+            }
+
+            const nextBtn = document.createElement('button');
+            nextBtn.className = 'pagination-btn';
+            nextBtn.textContent = '»';
+            nextBtn.disabled = currentPage === pageCount;
+            nextBtn.classList.toggle('disabled', currentPage === pageCount);
+            nextBtn.addEventListener('click', () => {
+                if (currentPage < pageCount) {
+                    currentPage++;
+                    updateNewsDisplay();
+                }
+            });
+            pagination.appendChild(nextBtn);
+        }
+        function updateNewsDisplay() {
+            const visibleCards = Array.from(newsCards).filter(card => {
+                const title = card.dataset.title || '';
+                const date = card.dataset.date || '0';
+                const author = card.dataset.createdBy || '';
+                const category = card.dataset.category || '';
+                const parentCategory = card.dataset.parentCategory || '';
+                const tags = (card.dataset.tags || '').toLowerCase().split(',').filter(tag => tag.trim() !== '');
+
+                let show = true;
+                const searchTerm = searchInput.value.toLowerCase();
+
+                if (searchTerm && !title.includes(searchTerm)) show = false;
+                if (filters.category.length && !filters.category.includes(category)) show = false;
+                if (filters.parentCategory.length && !filters.parentCategory.includes(parentCategory)) show = false;
+                if (filters.tag.length && !filters.tag.some(filterTag => tags.includes(filterTag.toLowerCase()))) show = false;
+                if (filters.author.length && !filters.author.includes(author)) show = false;
+                if (filters.startDate && date < filters.startDate.replace(/-/g, '')) show = false;
+                if (filters.endDate && date > filters.endDate.replace(/-/g, '')) show = false;
+
+                return show;
+            });
+
+            const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+            const endIndex = startIndex + ITEMS_PER_PAGE;
+
+            newsCards.forEach(card => {
+                const isVisible = visibleCards.includes(card);
+                const visibleIndex = visibleCards.indexOf(card);
+                if (isVisible) {
+                    card.style.display = (visibleIndex >= startIndex && visibleIndex < endIndex) ? 'block' : 'none';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+
+            createPagination(visibleCards.length);
+
+            if (visibleCards.length === 0) {
+                newsGrid.innerHTML = '<div class="no-results">Không tìm thấy kết quả phù hợp</div>';
+                Array.from(newsCards).forEach(card => newsGrid.appendChild(card));
+            } else {
+                const noResultsMessage = newsGrid.querySelector('.no-results');
+                if (noResultsMessage) noResultsMessage.remove();
+            }
+
+            window.scrollTo({ top: newsGrid.offsetTop - 100, behavior: 'smooth' });
+        }
+
+        const filters = {
+            category: [],
+            parentCategory: [],
+            tag: [],
+            author: [],
+            startDate: null,
+            endDate: null
+        };
+
+        document.querySelectorAll('.category-parent i').forEach(arrow => {
+            arrow.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const parentDiv = this.parentElement;
+                const categoryKey = parentDiv.dataset.category;
+                const subCategoryList = document.querySelector(`.subcategory-list[data-parent="${categoryKey}"]`);
+                parentDiv.classList.toggle('expanded');
+                subCategoryList.classList.toggle('show');
+            });
+        });
+
+        document.querySelectorAll('[data-toggle]').forEach(header => {
+            header.addEventListener('click', function () {
+                const targetId = this.dataset.toggle;
+                const targetContent = document.getElementById(targetId);
+                this.classList.toggle('collapsed');
+                targetContent.style.display = targetContent.style.display === 'none' ? 'block' : 'none';
+            });
+        });
+
+        function setupFilterSearch(searchInput, items) {
+            searchInput.addEventListener('input', function() {
+                const searchTerm = this.value.toLowerCase();
+                items.forEach(item => {
+                    const text = item.textContent.toLowerCase();
+                    item.style.display = text.includes(searchTerm) ? 'flex' : 'none';
+                });
+            });
+        }
+
+        setupFilterSearch(categorySearch, document.querySelectorAll('.category-item'));
+        setupFilterSearch(tagSearch, document.querySelectorAll('#tags-content .filter-checkbox'));
+        setupFilterSearch(authorSearch, document.querySelectorAll('#author-content .filter-checkbox'));
+
+        function addActiveFilterTag(type, value) {
+            const tag = document.createElement('div');
+            tag.className = 'filter-tag';
+            tag.innerHTML = `
+                ${type}: ${value}
+                <button data-type="${type.toLowerCase()}" data-value="${value}">&times;</button>
+            `;
+            activeFilters.appendChild(tag);
+        }
+
+        function updateActiveFilters() {
+            activeFilters.innerHTML = '';
+            filters.parentCategory.forEach(category => addActiveFilterTag('Danh mục', category));
+            filters.category.forEach(category => addActiveFilterTag('Loại', category));
+            filters.tag.forEach(tag => addActiveFilterTag('Thẻ', tag));
+            filters.author.forEach(author => addActiveFilterTag('Tác giả', author));
+            if (filters.startDate) addActiveFilterTag('Từ ngày', filters.startDate);
+            if (filters.endDate) addActiveFilterTag('Đến ngày', filters.endDate);
+        }
+
+        document.querySelectorAll('.filter-checkbox label').forEach(label => {
+            label.addEventListener('click', function(e) {
+                e.stopPropagation();
+            });
+        });
+
+        document.querySelectorAll('.filter-checkbox input').forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                const filterType = this.dataset.filter;
+                const value = this.value;
+
+                if (this.checked) {
+                    filters[filterType].push(value);
+                } else {
+                    filters[filterType] = filters[filterType].filter(item => item !== value);
+                }
+                updateActiveFilters();
+                applyFilters();
+            });
+        });
+
+        [startDate, endDate].forEach(input => {
+            input.addEventListener('change', function() {
+                filters[this.id] = this.value;
+                updateActiveFilters();
+                applyFilters();
+            });
+        });
+
+        activeFilters.addEventListener('click', function(e) {
+            if (e.target.tagName === 'BUTTON') {
+                const type = e.target.dataset.type;
+                const value = e.target.dataset.value;
+
+                if (type === 'từ ngày') filters.startDate = null;
+                else if (type === 'đến ngày') filters.endDate = null;
+                else filters[type] = filters[type].filter(item => item !== value);
+
+                document.querySelector(`input[data-filter="${type}"][value="${value}"]`)?.removeAttribute('checked');
+                if (type === 'từ ngày') startDate.value = '';
+                if (type === 'đến ngày') endDate.value = '';
+
+                updateActiveFilters();
+                applyFilters();
+            }
+        });
+
+        resetAllFilters.addEventListener('click', function() {
+            Object.keys(filters).forEach(key => {
+                if (Array.isArray(filters[key])) filters[key] = [];
+                else filters[key] = null;
+            });
+            document.querySelectorAll('.filter-checkbox input').forEach(cb => cb.checked = false);
+            startDate.value = '';
+            endDate.value = '';
+            searchInput.value = '';
+            sortSelect.value = 'newest';
+            updateActiveFilters();
+            applyFilters();
+        });
+
+        function applyFilters() {
+            const searchTerm = searchInput.value.toLowerCase();
+
+            newsCards.forEach(card => {
+                const title = card.dataset.title || '';
+                const date = card.dataset.date || '0';
+                const author = card.dataset.createdBy || '';
+                const category = card.dataset.category || '';
+                const parentCategory = card.dataset.parentCategory || '';
+                const tags = (card.dataset.tags || '').toLowerCase().split(',').filter(tag => tag.trim() !== '');
+
+                let show = true;
+
+                if (searchTerm && !title.includes(searchTerm)) show = false;
+                if (filters.category.length && !filters.category.includes(category)) show = false;
+                if (filters.parentCategory.length && !filters.parentCategory.includes(parentCategory)) show = false;
+                if (filters.tag.length && !filters.tag.some(filterTag => tags.includes(filterTag.toLowerCase()))) show = false;
+                if (filters.author.length && !filters.author.includes(author)) show = false;
+                if (filters.startDate && date < filters.startDate.replace(/-/g, '')) show = false;
+                if (filters.endDate && date > filters.endDate.replace(/-/g, '')) show = false;
+
+                card.style.display = show ? 'block' : 'none';
+            });
+
+            const visibleCards = Array.from(newsCards).filter(card => card.style.display !== 'none');
+            if (visibleCards.length === 0) {
+                newsGrid.innerHTML = '<div class="no-results">Không tìm thấy kết quả phù hợp</div>';
+                Array.from(newsCards).forEach(card => newsGrid.appendChild(card));
+            } else {
+                const noResultsMessage = newsGrid.querySelector('.no-results');
+                if (noResultsMessage) noResultsMessage.remove();
+            }
+
+            currentPage = 1;
+            updateNewsDisplay();
+        }
+
+        function sortNewsCards() {
+            const cardsArray = Array.from(newsCards);
+            const sortValue = sortSelect.value;
+
+            cardsArray.sort((a, b) => {
+                if (sortValue === 'newest') return b.dataset.date - a.dataset.date;
+                if (sortValue === 'oldest') return a.dataset.date - b.dataset.date;
+                if (sortValue === 'titleAsc') return a.dataset.title.localeCompare(b.dataset.title);
+                if (sortValue === 'titleDesc') return b.dataset.title.localeCompare(a.dataset.title);
+            });
+
+            newsGrid.innerHTML = '';
+            cardsArray.forEach(card => newsGrid.appendChild(card));
+            currentPage = 1;
+            updateNewsDisplay();
+        }
+
+        function initializePage() {
+            newsCards.forEach(card => card.style.display = 'block');
+            sortNewsCards();
+            applyFilters(); 
+        }
+
+        initializePage();
+
+        searchInput.addEventListener('input', applyFilters);
+        sortSelect.addEventListener('change', () => {
+            sortNewsCards();
+            applyFilters();
+        });
+
+        resetAllFilters.addEventListener('click', function() {
+            Object.keys(filters).forEach(key => {
+                if (Array.isArray(filters[key])) filters[key] = [];
+                else filters[key] = null;
+            });
+            document.querySelectorAll('.filter-checkbox input').forEach(cb => cb.checked = false);
+            startDate.value = '';
+            endDate.value = '';
+            searchInput.value = '';
+            sortSelect.value = 'newest';
+            updateActiveFilters();
+            applyFilters();
+        });
+    });
+</script>

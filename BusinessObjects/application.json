@@ -1,0 +1,5 @@
+{
+  "ConnectionStrings": {
+    "DefaultConnection": "Server=(local);uid=sa;pwd=123;database=MyStore;TrustServerCertificate=true;Encrypt=false;"
+  }
+}

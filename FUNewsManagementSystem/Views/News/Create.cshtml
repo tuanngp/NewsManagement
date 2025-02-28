@@ -1,0 +1,366 @@
+﻿@model BusinessObjects.Models.NewsArticle
+@{
+    ViewData["Title"] = "Tạo Bài Viết Mới";
+}
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #f0f4ff 0%, #e9ecef 100%);
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            color: #1e293b;
+            min-height: 100vh;
+            margin: 0;
+            padding: 2rem 1rem;
+        }
+
+        .news-form-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 3rem;
+            background: white;
+            border-radius: 24px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+            .news-form-container:hover {
+                transform: translateY(-8px);
+                box-shadow: 0 15px 50px rgba(0, 0, 0, 0.12);
+            }
+
+            .news-form-container::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 6px;
+                background: linear-gradient(90deg, #4f46e5, #a855f7);
+            }
+
+        .form-header {
+            text-align: center;
+            margin-bottom: 3rem;
+            position: relative;
+        }
+
+        .form-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: #1e293b;
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.5px;
+            background: linear-gradient(135deg, #4f46e5, #a855f7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .form-subtitle {
+            font-size: 1.2rem;
+            color: #64748b;
+            font-weight: 400;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2.5rem;
+            padding: 0 1rem;
+        }
+
+        .form-group {
+            margin-bottom: 2rem;
+            position: relative;
+        }
+
+            .form-group.full-width {
+                grid-column: 1 / -1;
+            }
+
+        .control-label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.75rem;
+            color: #334155;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+            .control-label i {
+                color: #64748b;
+                font-size: 1.1rem;
+            }
+
+        .form-control {
+            width: 100%;
+            padding: 1rem 1.25rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 1rem;
+            background: #f8fafc;
+            transition: all 0.3s ease;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.02);
+        }
+
+            .form-control:focus {
+                border-color: #4f46e5;
+                background: white;
+                box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.15), inset 0 2px 4px rgba(0, 0, 0, 0.02);
+                outline: none;
+            }
+
+        textarea.form-control {
+            min-height: 200px;
+            resize: vertical;
+            padding-top: 1.25rem;
+        }
+
+        /* Custom Select 2 tầng */
+        .category-select-wrapper {
+            position: relative;
+        }
+
+        .category-select {
+            width: 100%;
+            padding: 1rem 2.5rem 1rem 1.25rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            background: #f8fafc;
+            font-size: 1rem;
+            appearance: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+            .category-select:focus {
+                border-color: #4f46e5;
+                box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.15);
+                outline: none;
+            }
+
+            .category-select option[disabled] {
+                color: #94a3b8;
+                font-weight: 600;
+            }
+
+            .category-select option:not([disabled]) {
+                padding-left: 1.5rem;
+            }
+
+        .category-select-wrapper::after {
+            content: '\f078';
+            font-family: "Font Awesome 6 Free";
+            font-weight: 900;
+            position: absolute;
+            right: 1.25rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #64748b;
+            pointer-events: none;
+        }
+
+        .text-danger {
+            color: #dc2626;
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+            display: block;
+            font-weight: 500;
+        }
+
+        .form-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 3rem;
+            padding-top: 2.5rem;
+            border-top: 1px solid #e5e7eb;
+            gap: 1.5rem;
+        }
+
+        .btn {
+            padding: 1rem 2.5rem;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 0.75px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #4f46e5, #a855f7);
+            color: white;
+        }
+
+            .btn-primary:hover {
+                background: linear-gradient(135deg, #4338ca, #9333ea);
+                transform: translateY(-3px);
+                box-shadow: 0 6px 20px rgba(79, 70, 229, 0.3);
+            }
+
+        .btn-secondary {
+            background: #e5e7eb;
+            color: #334155;
+        }
+
+            .btn-secondary:hover {
+                background: #d1d5db;
+                transform: translateY(-3px);
+                box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+            }
+
+        .validation-summary {
+            background: #fef2f2;
+            border: 2px solid #fee2e2;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            color: #991b1b;
+            font-weight: 500;
+            box-shadow: 0 4px 15px rgba(254, 226, 226, 0.5);
+        }
+
+        .fade-in {
+            animation: fadeIn 0.6s ease-in-out;
+        }
+
+        @@keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="news-form-container fade-in">
+        <div class="form-header">
+            <h2 class="form-title">Tạo Bài Viết Mới</h2>
+            <h4 class="form-subtitle">Điền thông tin chi tiết để tạo bài viết của bạn</h4>
+        </div>
+
+        <form asp-action="Create" class="needs-validation" novalidate method="post">
+            <div asp-validation-summary="ModelOnly" class="validation-summary"></div>
+
+            <div class="form-grid">
+                <div class="form-group">
+                    <label asp-for="NewsTitle" class="control-label">
+                        <i class="fas fa-heading"></i> Tiêu đề
+                    </label>
+                    <input asp-for="NewsTitle" class="form-control" placeholder="Nhập tiêu đề bài viết..." />
+                    <span asp-validation-for="NewsTitle" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="CategoryId" class="control-label">
+                        <i class="fas fa-folder"></i> Danh mục
+                    </label>
+                    <div class="category-select-wrapper">
+                        <select asp-for="CategoryId" class="category-select">
+                            <option value="">-- Chọn danh mục --</option>
+                            @if (ViewBag.CategoryId != null)
+                            {
+                                @foreach (var item in ViewBag.CategoryId as IEnumerable<SelectListItem>)
+                                {
+                                    <option value="@item.Value">@item.Text</option>
+                                }
+                            }
+                            else
+                            {
+                                <option value="">Không có danh mục</option>
+                            }
+                        </select>
+                        <span asp-validation-for="CategoryId" class="text-danger"></span>
+                    </div>
+                    <span asp-validation-for="CategoryId" class="text-danger"></span>
+                </div>
+
+                <div class="form-group full-width">
+                    <label asp-for="Headline" class="control-label">
+                        <i class="fas fa-quote-left"></i> Tóm tắt
+                    </label>
+                    <input asp-for="Headline" class="form-control" placeholder="Tóm tắt ngắn gọn nội dung..." />
+                    <span asp-validation-for="Headline" class="text-danger"></span>
+                </div>
+
+                <div class="form-group full-width">
+                    <label asp-for="NewsContent" class="control-label">
+                        <i class="fas fa-file-alt"></i> Nội dung
+                    </label>
+                    <textarea asp-for="NewsContent" class="form-control" placeholder="Viết nội dung bài viết tại đây..."></textarea>
+                    <span asp-validation-for="NewsContent" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="NewsSource" class="control-label">
+                        <i class="fas fa-link"></i> Nguồn tin
+                    </label>
+                    <input asp-for="NewsSource" class="form-control" placeholder="Nguồn bài viết (nếu có)..." />
+                    <span asp-validation-for="NewsSource" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="NewsStatus" class="control-label">
+                        <i class="fas fa-toggle-on"></i> Trạng thái
+                    </label>
+                    <select asp-for="NewsStatus" class="form-control category-select">
+                        <option value="false">Bản nháp</option>
+                        <option value="true">Xuất bản</option>
+                    </select>
+                    <span asp-validation-for="NewsStatus" class="text-danger"></span>
+                </div>
+                <input type="hidden" asp-for="NewsArticleId" value="0" />
+            </div>
+
+            <div class="form-actions">
+                <a href="/" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Quay Lại
+                </a>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i> Lưu Bài Viết
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        (() => {
+            'use strict';
+            const forms = document.querySelectorAll('.needs-validation');
+            Array.from(forms).forEach(form => {
+                form.addEventListener('submit', event => {
+                    if (!form.checkValidity()) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                    }
+                    form.classList.add('was-validated');
+                }, false);
+            });
+        })();
+    </script>
+</body>
+</html>
