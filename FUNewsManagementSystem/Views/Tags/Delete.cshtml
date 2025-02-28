@@ -1,34 +1,168 @@
 ﻿@model BusinessObjects.Models.Tag
-
 @{
-    ViewData["Title"] = "Delete";
+    ViewData["Title"] = "Xóa Thẻ";
 }
 
-<h1>Delete</h1>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 
-<h3>Are you sure you want to delete this?</h3>
-<div>
-    <h4>Tag</h4>
-    <hr />
-    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.TagName)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.TagName)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Note)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Note)
-        </dd>
-    </dl>
-    
-    <form asp-action="Delete">
-        <input type="hidden" asp-for="TagId" />
-        <input type="submit" value="Delete" class="btn btn-danger" /> |
-        <a asp-action="Index">Back to List</a>
-    </form>
+<style>
+    .delete-container {
+        max-width: 800px;
+        margin: 2rem auto;
+        padding: 2rem;
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+    }
+
+    .warning-header {
+        background: #fee2e2;
+        border-radius: 8px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        border-left: 4px solid #ef4444;
+    }
+
+    .warning-title {
+        color: #991b1b;
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .warning-text {
+        color: #7f1d1d;
+        margin: 0;
+    }
+
+    .info-section {
+        background: #f8fafc;
+        border-radius: 8px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .info-title {
+        color: #1f2937;
+        font-size: 1.25rem;
+        font-weight: 600;
+        margin-bottom: 1.5rem;
+    }
+
+    .info-row {
+        display: flex;
+        margin-bottom: 1rem;
+        border-bottom: 1px solid #e5e7eb;
+        padding-bottom: 1rem;
+    }
+
+    .info-row:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+        padding-bottom: 0;
+    }
+
+    .info-label {
+        width: 200px;
+        color: #4b5563;
+        font-weight: 500;
+    }
+
+    .info-value {
+        flex: 1;
+        color: #1f2937;
+    }
+
+    .actions {
+        display: flex;
+        gap: 1rem;
+        margin-top: 2rem;
+    }
+
+    .btn-delete {
+        background: #ef4444;
+        color: white;
+        padding: 0.75rem 2rem;
+        border-radius: 8px;
+        border: none;
+        font-weight: 500;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.3s ease;
+    }
+
+    .btn-delete:hover {
+        background: #dc2626;
+        color: white;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 6px -1px rgba(239, 68, 68, 0.2);
+    }
+
+    .btn-cancel {
+        background: #f3f4f6;
+        color: #374151;
+        padding: 0.75rem 2rem;
+        border-radius: 8px;
+        border: none;
+        font-weight: 500;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.3s ease;
+    }
+
+    .btn-cancel:hover {
+        background: #e5e7eb;
+        color: #1f2937;
+    }
+
+    .fade-in {
+        animation: fadeIn 0.5s ease-in;
+    }
+</style>
+
+<div class="delete-container fade-in">
+    <div class="warning-header">
+        <div class="warning-title">
+            <i class="fas fa-exclamation-triangle"></i>
+            Xác Nhận Xóa
+        </div>
+        <p class="warning-text">
+            Bạn có chắc chắn muốn xóa thẻ này? Hành động này không thể hoàn tác.
+        </p>
+    </div>
+
+    <div class="info-section">
+        <h4 class="info-title">Thông Tin Thẻ</h4>
+
+        <div class="info-row">
+            <div class="info-label">Tên Thẻ</div>
+            <div class="info-value">@Html.DisplayFor(model => model.TagName)</div>
+        </div>
+
+        <div class="info-row">
+            <div class="info-label">Ghi Chú</div>
+            <div class="info-value">@Html.DisplayFor(model => model.Note)</div>
+        </div>
+    </div>
+
+    <div class="actions">
+        <form asp-action="Delete" method="post" style="display: inline;">
+            <input type="hidden" asp-for="TagId" />
+            <button type="submit" class="btn-delete">
+                <i class="fas fa-trash"></i>
+                Xác Nhận Xóa
+            </button>
+        </form>
+        <a asp-action="Index" class="btn-cancel">
+            <i class="fas fa-arrow-left"></i>
+            Quay Lại
+        </a>
+    </div>
 </div>
