@@ -1,172 +1,345 @@
-﻿@model IEnumerable<BusinessObjects.Models.NewsArticle>
+﻿@model FUNewsManagementSystem.Helpers.PaginatedList<BusinessObjects.Models.NewsArticle>
 @{
-    ViewData["Title"] = "View";
+    ViewData["Title"] = "Quản lý tin tức";
 }
 
-<!DOCTYPE html>
-<html>
-<head>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <style>
-        .dashboard {
-            padding: 2rem;
-            background-color: #f8f9fa;
-            min-height: 100vh;
-        }
-
-        .page-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 2rem;
-            padding-bottom: 1rem;
-            border-bottom: 2px solid #e9ecef;
-        }
-
-        .create-btn {
-            background-color: #0d6efd;
-            color: white;
-            padding: 0.5rem 1rem;
-            border-radius: 0.375rem;
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            transition: background-color 0.2s;
-        }
-
-            .create-btn:hover {
-                background-color: #0b5ed7;
-            }
-
-        .news-table {
-            background: white;
-            border-radius: 0.5rem;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            overflow: hidden;
-        }
-
-            .news-table table {
-                width: 100%;
-                border-collapse: collapse;
-            }
-
-            .news-table th {
-                background-color: #f8f9fa;
-                padding: 1rem;
-                text-align: left;
-                font-weight: 600;
-                color: #495057;
-            }
-
-            .news-table td {
-                padding: 1rem;
-                border-top: 1px solid #e9ecef;
-            }
-
-            .news-table tr:hover {
-                background-color: #f8f9fa;
-            }
-
-        .action-links {
-            display: flex;
-            gap: 0.5rem;
-        }
-
-        .action-btn {
-            padding: 0.25rem 0.5rem;
-            border-radius: 0.25rem;
-            text-decoration: none;
-            font-size: 0.875rem;
-        }
-
-        .edit-btn {
-            background-color: #ffc107;
-            color: #000;
-        }
-
-        .details-btn {
-            background-color: #0dcaf0;
-            color: white;
-        }
-
-        .delete-btn {
-            background-color: #dc3545;
-            color: white;
-        }
-
-        .status-badge {
-            padding: 0.25rem 0.5rem;
-            border-radius: 1rem;
-            font-size: 0.875rem;
-            font-weight: 500;
-        }
-
-        .truncate {
-            max-width: 200px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-    </style>
-</head>
-<body>
-    <div class="dashboard">
-        <div class="page-header">
+<div class="dashboard">
+    <div class="page-header">
+        <div class="header-content">
             <h1>Quản lý tin tức</h1>
+            <div class="search-container">
+                <form asp-action="Index" method="get" class="search-form">
+                    <input type="text" name="SearchString" value="@ViewData["CurrentFilter"]" placeholder="Tìm kiếm tin tức..." class="search-input" />
+                    <button type="submit" class="search-btn">
+                        <i class="fas fa-search"></i>
+                    </button>
+                    @if (!string.IsNullOrEmpty(ViewData["CurrentFilter"]?.ToString()))
+                    {
+                        <a asp-action="Index" class="clear-search">
+                            <i class="fas fa-times"></i>
+                        </a>
+                    }
+                </form>
+            </div>
             <a href="@Url.Action("Create")" class="create-btn">
                 <i class="fas fa-plus"></i>
                 Tạo tin mới
             </a>
         </div>
-
-        <div class="news-table">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Tiêu đề</th>
-                        <th>Tóm tắt</th>
-                        <th>Ngày tạo</th>
-                        <th>Nguồn tin</th>
-                        <th>Trạng thái</th>
-                        <th>Danh mục</th>
-                        <th>Tác giả</th>
-                        <th>Thao tác</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var item in Model)
-                    {
-                        <tr>
-                            <td class="truncate">@item.NewsTitle</td>
-                            <td class="truncate">@item.Headline</td>
-                            <td>@item.CreatedDate?.ToString("dd/MM/yyyy")</td>
-                            <td>@item.NewsSource</td>
-                            <td>
-                                <span class="status-badge" style="background-color: @(item.NewsStatus ?? false ? "#198754" : "#6c757d")">
-                                    @(item.NewsStatus ?? false ? "Xuất bản" : "Nháp")
-                                </span>
-                            </td>
-                            <td>@item.Category?.CategoryName</td>
-                            <td>@item.CreatedBy?.AccountName</td>
-                            <td>
-                                <div class="action-links">
-                                    <a asp-action="Edit" asp-route-id="@item.NewsArticleId" class="action-btn edit-btn">
-                                        <i class="fas fa-edit"></i>
-                                    </a>
-                                    <a asp-action="Details" asp-route-id="@item.NewsArticleId" class="action-btn details-btn">
-                                        <i class="fas fa-info-circle"></i>
-                                    </a>
-                                    <a asp-action="Delete" asp-route-id="@item.NewsArticleId" class="action-btn delete-btn">
-                                        <i class="fas fa-trash"></i>
-                                    </a>
-                                </div>
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
-        </div>
     </div>
-</body>
-</html>
+
+    <div class="news-table">
+        <table>
+            <thead>
+                <tr>
+                    <th>
+                        <a asp-action="Index" asp-route-sortOrder="@ViewData["TitleSortParm"]" asp-route-currentFilter="@ViewData["CurrentFilter"]" class="sort-link">
+                            Tiêu đề
+                            <i class="fas @(ViewData["CurrentSort"]?.ToString() == "title_desc" ? "fa-sort-down" : 
+                                          ViewData["CurrentSort"]?.ToString() == "" ? "fa-sort-up" : "fa-sort")"></i>
+                        </a>
+                    </th>
+                    <th>Tóm tắt</th>
+                    <th>
+                        <a asp-action="Index" asp-route-sortOrder="@ViewData["DateSortParm"]" asp-route-currentFilter="@ViewData["CurrentFilter"]" class="sort-link">
+                            Ngày tạo
+                            <i class="fas @(ViewData["CurrentSort"]?.ToString() == "Date" ? "fa-sort-up" : 
+                                          ViewData["CurrentSort"]?.ToString() == "date_desc" ? "fa-sort-down" : "fa-sort")"></i>
+                        </a>
+                    </th>
+                    <th>Nguồn tin</th>
+                    <th>
+                        <a asp-action="Index" asp-route-sortOrder="@ViewData["StatusSortParm"]" asp-route-currentFilter="@ViewData["CurrentFilter"]" class="sort-link">
+                            Trạng thái
+                            <i class="fas @(ViewData["CurrentSort"]?.ToString() == "Status" ? "fa-sort-up" : 
+                                          ViewData["CurrentSort"]?.ToString() == "status_desc" ? "fa-sort-down" : "fa-sort")"></i>
+                        </a>
+                    </th>
+                    <th>
+                        <a asp-action="Index" asp-route-sortOrder="@ViewData["CategorySortParm"]" asp-route-currentFilter="@ViewData["CurrentFilter"]" class="sort-link">
+                            Danh mục
+                            <i class="fas @(ViewData["CurrentSort"]?.ToString() == "Category" ? "fa-sort-up" : 
+                                          ViewData["CurrentSort"]?.ToString() == "category_desc" ? "fa-sort-down" : "fa-sort")"></i>
+                        </a>
+                    </th>
+                    <th>Tác giả</th>
+                    <th>Thao tác</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td class="truncate">@item.NewsTitle</td>
+                        <td class="truncate">@item.Headline</td>
+                        <td>@item.CreatedDate?.ToString("dd/MM/yyyy")</td>
+                        <td>@item.NewsSource</td>
+                        <td>
+                            <span class="status-badge" style="background-color: @(item.NewsStatus ?? false ? "#198754" : "#6c757d")">
+                                @(item.NewsStatus ?? false ? "Xuất bản" : "Nháp")
+                            </span>
+                        </td>
+                        <td>@item.Category?.CategoryName</td>
+                        <td>@item.CreatedBy?.AccountName</td>
+                        <td>
+                            <div class="action-links">
+                                <a asp-action="Edit" asp-route-id="@item.NewsArticleId" class="action-btn edit-btn">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <a asp-action="Details" asp-route-id="@item.NewsArticleId" class="action-btn details-btn">
+                                    <i class="fas fa-info-circle"></i>
+                                </a>
+                                <a asp-action="Delete" asp-route-id="@item.NewsArticleId" class="action-btn delete-btn">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <div class="pagination">
+        @{
+            var prevDisabled = !Model.HasPreviousPage ? "disabled" : "";
+            var nextDisabled = !Model.HasNextPage ? "disabled" : "";
+        }
+        <a asp-action="Index"
+           asp-route-sortOrder="@ViewData["CurrentSort"]"
+           asp-route-pageNumber="@(Model.PageIndex - 1)"
+           asp-route-currentFilter="@ViewData["CurrentFilter"]"
+           class="page-link @prevDisabled">
+            <i class="fas fa-chevron-left"></i>
+        </a>
+
+        <span class="page-info">
+            Trang @Model.PageIndex / @Model.TotalPages
+        </span>
+
+        <a asp-action="Index"
+           asp-route-sortOrder="@ViewData["CurrentSort"]"
+           asp-route-pageNumber="@(Model.PageIndex + 1)"
+           asp-route-currentFilter="@ViewData["CurrentFilter"]"
+           class="page-link @nextDisabled">
+            <i class="fas fa-chevron-right"></i>
+        </a>
+    </div>
+</div>
+
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+
+<style>
+    .dashboard {
+        padding: 2rem;
+        background-color: #f8f9fa;
+        min-height: 100vh;
+    }
+
+    .header-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .search-container {
+        flex-grow: 1;
+        max-width: 500px;
+        margin: 0 1rem;
+    }
+
+    .search-form {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .search-input {
+        flex-grow: 1;
+        padding: 0.5rem;
+        border: 1px solid #dee2e6;
+        border-radius: 0.375rem;
+        min-width: 200px;
+    }
+
+    .search-btn, .clear-search {
+        padding: 0.5rem 1rem;
+        border: none;
+        border-radius: 0.375rem;
+        background-color: #0d6efd;
+        color: white;
+        cursor: pointer;
+    }
+
+    .clear-search {
+        background-color: #6c757d;
+        text-decoration: none;
+    }
+
+    .search-btn:hover {
+        background-color: #0b5ed7;
+    }
+
+    .clear-search:hover {
+        background-color: #5c636a;
+        color: white;
+    }
+
+    .page-header {
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid #e9ecef;
+    }
+
+    .create-btn {
+        background-color: #0d6efd;
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 0.375rem;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: background-color 0.2s;
+    }
+
+    .create-btn:hover {
+        background-color: #0b5ed7;
+        color: white;
+    }
+
+    .news-table {
+        background: white;
+        border-radius: 0.5rem;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        overflow-x: auto;
+        margin-bottom: 1rem;
+    }
+
+    .news-table table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .news-table th {
+        background-color: #f8f9fa;
+        padding: 1rem;
+        text-align: left;
+        font-weight: 600;
+        color: #495057;
+    }
+
+    .news-table td {
+        padding: 1rem;
+        border-top: 1px solid #e9ecef;
+    }
+
+    .news-table tr:hover {
+        background-color: #f8f9fa;
+    }
+
+    .sort-link {
+        color: #495057;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .sort-link:hover {
+        color: #0d6efd;
+    }
+
+    .action-links {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .action-btn {
+        padding: 0.25rem 0.5rem;
+        border-radius: 0.25rem;
+        text-decoration: none;
+        font-size: 0.875rem;
+    }
+
+    .edit-btn {
+        background-color: #ffc107;
+        color: #000;
+    }
+
+    .details-btn {
+        background-color: #0dcaf0;
+        color: white;
+    }
+
+    .delete-btn {
+        background-color: #dc3545;
+        color: white;
+    }
+
+    .status-badge {
+        padding: 0.25rem 0.5rem;
+        border-radius: 1rem;
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: white;
+    }
+
+    .truncate {
+        max-width: 200px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .pagination {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 1rem;
+        margin-top: 2rem;
+    }
+
+    .page-link {
+        padding: 0.5rem 1rem;
+        border: 1px solid #dee2e6;
+        border-radius: 0.375rem;
+        color: #0d6efd;
+        text-decoration: none;
+        background-color: white;
+    }
+
+    .page-link:hover:not(.disabled) {
+        background-color: #e9ecef;
+        color: #0a58ca;
+    }
+
+    .page-link.disabled {
+        color: #6c757d;
+        pointer-events: none;
+        background-color: #e9ecef;
+    }
+
+    .page-info {
+        color: #6c757d;
+    }
+
+    @@media (max-width: 768px) {
+        .header-content {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .search-container {
+            order: 2;
+            max-width: 100%;
+            margin: 1rem 0;
+        }
+
+        .create-btn {
+            order: 3;
+            justify-content: center;
+        }
+    }
+</style>

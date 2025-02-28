@@ -1,5 +1,6 @@
 ﻿using System.Security.Claims;
 using BusinessObjects.Models;
+using FUNewsManagementSystem.Helpers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -31,10 +32,80 @@ namespace FUNewsManagementSystem.Controllers
         }
 
         [Authorize(Roles = "Staff")]
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(
+            string searchString,
+            string sortOrder,
+            int? pageNumber,
+            string currentFilter
+        )
         {
+            if (searchString != null)
+            {
+                pageNumber = 1;
+            }
+            else
+            {
+                searchString = currentFilter;
+            }
+
+            ViewData["CurrentFilter"] = searchString;
+            ViewData["CurrentSort"] = sortOrder;
+            ViewData["TitleSortParm"] = String.IsNullOrEmpty(sortOrder) ? "title_desc" : "";
+            ViewData["DateSortParm"] = sortOrder == "Date" ? "date_desc" : "Date";
+            ViewData["CategorySortParm"] = sortOrder == "Category" ? "category_desc" : "Category";
+            ViewData["StatusSortParm"] = sortOrder == "Status" ? "status_desc" : "Status";
+
             var newsArticles = await _newsArticleService.GetAllAsync();
-            return View(newsArticles);
+
+            if (!String.IsNullOrEmpty(searchString))
+            {
+                newsArticles = newsArticles
+                    .Where(s =>
+                        s.NewsTitle.Contains(searchString, StringComparison.OrdinalIgnoreCase)
+                        || s.Headline.Contains(searchString, StringComparison.OrdinalIgnoreCase)
+                        || s.NewsSource.Contains(searchString, StringComparison.OrdinalIgnoreCase)
+                        || (
+                            s.Category != null
+                            && s.Category.CategoryName.Contains(
+                                searchString,
+                                StringComparison.OrdinalIgnoreCase
+                            )
+                        )
+                        || (
+                            s.CreatedBy != null
+                            && s.CreatedBy.AccountName.Contains(
+                                searchString,
+                                StringComparison.OrdinalIgnoreCase
+                            )
+                        )
+                    )
+                    .ToList();
+            }
+
+            newsArticles = sortOrder switch
+            {
+                "title_desc" => newsArticles.OrderByDescending(s => s.NewsTitle).ToList(),
+                "Date" => newsArticles.OrderBy(s => s.CreatedDate).ToList(),
+                "date_desc" => newsArticles.OrderByDescending(s => s.CreatedDate).ToList(),
+                "Category" => newsArticles
+                    .OrderBy(s => s.Category != null ? s.Category.CategoryName : "")
+                    .ToList(),
+                "category_desc" => newsArticles
+                    .OrderByDescending(s => s.Category != null ? s.Category.CategoryName : "")
+                    .ToList(),
+                "Status" => newsArticles.OrderBy(s => s.NewsStatus).ToList(),
+                "status_desc" => newsArticles.OrderByDescending(s => s.NewsStatus).ToList(),
+                _ => newsArticles.OrderBy(s => s.NewsTitle).ToList(),
+            };
+
+            int pageSize = 5;
+            return View(
+                await PaginatedList<NewsArticle>.CreateAsync(
+                    newsArticles.AsQueryable(),
+                    pageNumber ?? 1,
+                    pageSize
+                )
+            );
         }
 
         [Authorize(Roles = "Lecturer, Admin, Staff")]

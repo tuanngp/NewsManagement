@@ -1,4 +1,5 @@
 ﻿using BusinessObjects.Models;
+using FUNewsManagementSystem.Helpers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -24,10 +25,44 @@ namespace FUNewsManagementSystem.Controllers
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string searchString, string sortOrder, int? pageNumber, string currentFilter)
         {
+            if (searchString != null)
+            {
+                pageNumber = 1;
+            }
+            else
+            {
+                searchString = currentFilter;
+            }
+
+            ViewData["CurrentFilter"] = searchString;
+            ViewData["CurrentSort"] = sortOrder;
+            ViewData["NameSortParm"] = String.IsNullOrEmpty(sortOrder) ? "name_desc" : "";
+            ViewData["DescriptionSortParm"] = sortOrder == "Description" ? "description_desc" : "Description";
+            ViewData["StatusSortParm"] = sortOrder == "Status" ? "status_desc" : "Status";
+
             var categories = await _categoryService.GetAllAsync();
-            return View(categories);
+
+            if (!String.IsNullOrEmpty(searchString))
+            {
+                categories = categories.Where(s => s.CategoryName.Contains(searchString, StringComparison.OrdinalIgnoreCase)
+                                             || (s.CategoryDesciption != null && s.CategoryDesciption.Contains(searchString, StringComparison.OrdinalIgnoreCase)))
+                                     .ToList();
+            }
+
+            categories = sortOrder switch
+            {
+                "name_desc" => categories.OrderByDescending(s => s.CategoryName).ToList(),
+                "Description" => categories.OrderBy(s => s.CategoryDesciption).ToList(),
+                "description_desc" => categories.OrderByDescending(s => s.CategoryDesciption).ToList(),
+                "Status" => categories.OrderBy(s => s.IsActive).ToList(),
+                "status_desc" => categories.OrderByDescending(s => s.IsActive).ToList(),
+                _ => categories.OrderBy(s => s.CategoryName).ToList(),
+            };
+
+            int pageSize = 10;
+            return View(await PaginatedList<Category>.CreateAsync(categories.AsQueryable(), pageNumber ?? 1, pageSize));
         }
 
         public async Task<IActionResult> Details(short? id)

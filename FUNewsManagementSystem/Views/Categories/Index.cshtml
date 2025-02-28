@@ -1,9 +1,147 @@
-﻿@model IEnumerable<BusinessObjects.Models.Category>
+﻿@model FUNewsManagementSystem.Helpers.PaginatedList<BusinessObjects.Models.Category>
 @{
     ViewData["Title"] = "Category Management";
 }
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+
+<div class="table-container fade-in">
+    <h1 class="page-title">Category Management</h1>
+
+    <div class="actions-container">
+        <div class="search-box">
+            <form asp-action="Index" method="get" class="search-form">
+                <div class="input-group">
+                    <input type="text" name="SearchString" value="@ViewData["CurrentFilter"]" class="form-control search-input" placeholder="Search categories..." />
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-search"></i>
+                    </button>
+                    @if (!string.IsNullOrEmpty(ViewData["CurrentFilter"]?.ToString()))
+                    {
+                        <a asp-action="Index" class="btn btn-secondary">
+                            <i class="fas fa-times"></i>
+                        </a>
+                    }
+                </div>
+            </form>
+        </div>
+        
+        <a asp-action="Create" class="create-btn">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+            </svg>
+            Create New Category
+        </a>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="table-empty">
+            <p>No categories found. Create your first category to get started.</p>
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-striped custom-table">
+                <thead>
+                    <tr>
+                        <th class="py-3 px-4">
+                            <a asp-action="Index" asp-route-sortOrder="@ViewData["NameSortParm"]" asp-route-currentFilter="@ViewData["CurrentFilter"]" class="sort-link">
+                                Category Name
+                                <i class="fas @(ViewData["CurrentSort"]?.ToString() == "name_desc" ? "fa-sort-down" : 
+                                              ViewData["CurrentSort"]?.ToString() == "" ? "fa-sort-up" : "fa-sort")"></i>
+                            </a>
+                        </th>
+                        <th class="py-3 px-4">
+                            <a asp-action="Index" asp-route-sortOrder="@ViewData["DescriptionSortParm"]" asp-route-currentFilter="@ViewData["CurrentFilter"]" class="sort-link">
+                                Description
+                                <i class="fas @(ViewData["CurrentSort"]?.ToString() == "Description" ? "fa-sort-up" : 
+                                              ViewData["CurrentSort"]?.ToString() == "description_desc" ? "fa-sort-down" : "fa-sort")"></i>
+                            </a>
+                        </th>
+                        <th class="py-3 px-4">
+                            <a asp-action="Index" asp-route-sortOrder="@ViewData["StatusSortParm"]" asp-route-currentFilter="@ViewData["CurrentFilter"]" class="sort-link">
+                                Status
+                                <i class="fas @(ViewData["CurrentSort"]?.ToString() == "Status" ? "fa-sort-up" : 
+                                              ViewData["CurrentSort"]?.ToString() == "status_desc" ? "fa-sort-down" : "fa-sort")"></i>
+                            </a>
+                        </th>
+                        <th class="py-3 px-4">Parent Category</th>
+                        <th class="py-3 px-4">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td class="py-3 px-4">@Html.DisplayFor(modelItem => item.CategoryName)</td>
+                            <td class="py-3 px-4">@Html.DisplayFor(modelItem => item.CategoryDesciption)</td>
+                            <td class="py-3 px-4">
+                                <span class="status-badge @(item.IsActive ?? false ? "status-active" : "status-inactive")">
+                                    @(item.IsActive ?? false ? "Active" : "Inactive")
+                                </span>
+                            </td>
+                            <td class="py-3 px-4">
+                                @Html.DisplayFor(modelItem => item.ParentCategory.CategoryName)
+                            </td>
+                            <td class="py-3 px-4">
+                                <div class="d-flex gap-2">
+                                    <a asp-action="Edit" asp-route-id="@item.CategoryId" class="btn-custom btn-edit">
+                                        <i class="fas fa-edit"></i>
+                                        Edit
+                                    </a>
+                                    <a asp-action="Details" asp-route-id="@item.CategoryId" class="btn-custom btn-details">
+                                        <i class="fas fa-info-circle"></i>
+                                        Details
+                                    </a>
+                                    <a asp-action="Delete" asp-route-id="@item.CategoryId" class="btn-custom btn-delete">
+                                        <i class="fas fa-trash"></i>
+                                        Delete
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <div class="pagination-container">
+            @{
+                var prevDisabled = !Model.HasPreviousPage ? "disabled" : "";
+                var nextDisabled = !Model.HasNextPage ? "disabled" : "";
+            }
+            <nav aria-label="Page navigation">
+                <ul class="pagination justify-content-center">
+                    <li class="page-item @prevDisabled">
+                        <a class="page-link" asp-action="Index"
+                           asp-route-sortOrder="@ViewData["CurrentSort"]"
+                           asp-route-pageNumber="@(Model.PageIndex - 1)"
+                           asp-route-currentFilter="@ViewData["CurrentFilter"]">
+                            <i class="fas fa-chevron-left"></i>
+                        </a>
+                    </li>
+                    <li class="page-item">
+                        <span class="page-link">
+                            Page @Model.PageIndex of @Model.TotalPages
+                        </span>
+                    </li>
+                    <li class="page-item @nextDisabled">
+                        <a class="page-link" asp-action="Index"
+                           asp-route-sortOrder="@ViewData["CurrentSort"]"
+                           asp-route-pageNumber="@(Model.PageIndex + 1)"
+                           asp-route-currentFilter="@ViewData["CurrentFilter"]">
+                            <i class="fas fa-chevron-right"></i>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    }
+</div>
+
 <style>
     :root {
         --primary-color: #4f46e5;
@@ -28,6 +166,42 @@
         box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
     }
 
+    .actions-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .search-box {
+        flex-grow: 1;
+        max-width: 500px;
+    }
+
+    .search-form {
+        margin: 0;
+    }
+
+    .search-input {
+        border-radius: 8px;
+        border: 1px solid #e5e7eb;
+        padding: 0.5rem 1rem;
+    }
+
+    .sort-link {
+        color: inherit;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+        .sort-link:hover {
+            color: var(--primary-color);
+        }
+
     .page-title {
         color: #1f2937;
         font-size: 2rem;
@@ -48,6 +222,26 @@
             border-radius: 2px;
         }
 
+    .create-btn {
+        background: var(--primary-color);
+        color: white;
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        font-weight: 500;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.3s ease;
+        text-decoration: none;
+    }
+
+        .create-btn:hover {
+            background: var(--secondary-color);
+            color: white;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
     .custom-table {
         border-radius: 12px;
         overflow: hidden;
@@ -56,6 +250,7 @@
 
         .custom-table thead {
             background: var(--primary-color);
+            color: white;
         }
 
         .custom-table th {
@@ -74,37 +269,12 @@
                 transform: translateY(-1px);
             }
 
-        .custom-table td {
-            vertical-align: middle;
-            color: #4b5563;
-        }
-
-    .create-btn {
-        background: var(--primary-color);
-        color: white;
-        padding: 0.75rem 1.5rem;
-        border-radius: 8px;
-        font-weight: 500;
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-        transition: all 0.3s ease;
-        margin-bottom: 1.5rem;
-    }
-
-        .create-btn:hover {
-            background: var(--secondary-color);
-            color: white;
-            transform: translateY(-1px);
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-        }
-
     .btn-custom {
         padding: 0.5rem 1rem;
         border-radius: 6px;
         font-weight: 500;
         transition: all 0.3s ease;
-        border: none;
+        text-decoration: none;
         display: inline-flex;
         align-items: center;
         gap: 0.25rem;
@@ -155,84 +325,51 @@
         color: #6b7280;
     }
 
+    .pagination-container {
+        margin-top: 2rem;
+    }
+
+    .page-link {
+        color: var(--primary-color);
+        border-color: #e5e7eb;
+        padding: 0.5rem 1rem;
+    }
+
+        .page-link:hover:not(.disabled) {
+            background-color: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+    .page-item.disabled .page-link {
+        color: #6c757d;
+        pointer-events: none;
+        background-color: #e9ecef;
+        border-color: #dee2e6;
+    }
+
     /* Animation classes */
     .fade-in {
         animation: fadeIn 0.5s ease-in;
     }
+
+    @@media (max-width: 768px) {
+        .actions-container {
+            flex-direction: column;
+        }
+
+        .search-box {
+            width: 100%;
+            max-width: none;
+            order: 2;
+        }
+
+        .create-btn {
+            width: 100%;
+            justify-content: center;
+            order: 1;
+        }
+    }
 </style>
-
-<div class="table-container fade-in">
-    <h1 class="page-title">Category Management</h1>
-
-    <a asp-action="Create" class="create-btn">
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-        </svg>
-        Create New Category
-    </a>
-
-    @if (!Model.Any())
-    {
-        <div class="table-empty">
-            <p>No categories found. Create your first category to get started.</p>
-        </div>
-    }
-    else
-    {
-        <div class="table-responsive">
-            <table class="table table-striped custom-table">
-                <thead>
-                    <tr>
-                        <th class="py-3 px-4">@Html.DisplayNameFor(model => model.CategoryName)</th>
-                        <th class="py-3 px-4">@Html.DisplayNameFor(model => model.CategoryDesciption)</th>
-                        <th class="py-3 px-4">@Html.DisplayNameFor(model => model.IsActive)</th>
-                        <th class="py-3 px-4">@Html.DisplayNameFor(model => model.ParentCategory)</th>
-                        <th class="py-3 px-4">Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var item in Model)
-                    {
-                        <tr>
-                            <td class="py-3 px-4">@Html.DisplayFor(modelItem => item.CategoryName)</td>
-                            <td class="py-3 px-4">@Html.DisplayFor(modelItem => item.CategoryDesciption)</td>
-                            <td class="py-3 px-4">
-                                <span class="status-badge @(item.IsActive ?? false ? "status-active" : "status-inactive")">
-                                    @(item.IsActive ?? false ? "Active" : "Inactive")
-                                </span>
-                            </td>
-                            <td class="py-3 px-4">
-                                @Html.DisplayFor(modelItem => item.ParentCategory.CategoryName)
-                            </td>
-                            <td class="py-3 px-4">
-                                <div class="d-flex gap-2">
-                                    <a asp-action="Edit" asp-route-id="@item.CategoryId" class="btn-custom btn-edit">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                                        </svg>
-                                        Edit
-                                    </a>
-                                    <a asp-action="Details" asp-route-id="@item.CategoryId" class="btn-custom btn-details">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                                        </svg>
-                                        Details
-                                    </a>
-                                    <a asp-action="Delete" asp-route-id="@item.CategoryId" class="btn-custom btn-delete">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                        </svg>
-                                        Delete
-                                    </a>
-                                </div>
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
-        </div>
-    }
-</div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>

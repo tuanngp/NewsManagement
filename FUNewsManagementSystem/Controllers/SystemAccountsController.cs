@@ -1,5 +1,6 @@
 ﻿using System.Security.Claims;
 using BusinessObjects.Models;
+using FUNewsManagementSystem.Helpers;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Google;
@@ -33,10 +34,44 @@ namespace FUNewsManagementSystem.Controllers
                 configuration ?? throw new ArgumentNullException(nameof(configuration));
         }
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string searchString, string sortOrder, int? pageNumber, string currentFilter)
         {
+            if (searchString != null)
+            {
+                pageNumber = 1;
+            }
+            else
+            {
+                searchString = currentFilter;
+            }
+
+            ViewData["CurrentFilter"] = searchString;
+            ViewData["CurrentSort"] = sortOrder;
+            ViewData["NameSortParm"] = String.IsNullOrEmpty(sortOrder) ? "name_desc" : "";
+            ViewData["EmailSortParm"] = sortOrder == "Email" ? "email_desc" : "Email";
+            ViewData["RoleSortParm"] = sortOrder == "Role" ? "role_desc" : "Role";
+
             var systemAccounts = await _systemAccountService.GetAllAsync();
-            return View(systemAccounts);
+
+            if (!String.IsNullOrEmpty(searchString))
+            {
+                systemAccounts = systemAccounts.Where(s => s.AccountName.Contains(searchString, StringComparison.OrdinalIgnoreCase)
+                                               || s.AccountEmail.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+                                           .ToList();
+            }
+
+            systemAccounts = sortOrder switch
+            {
+                "name_desc" => systemAccounts.OrderByDescending(s => s.AccountName).ToList(),
+                "Email" => systemAccounts.OrderBy(s => s.AccountEmail).ToList(),
+                "email_desc" => systemAccounts.OrderByDescending(s => s.AccountEmail).ToList(),
+                "Role" => systemAccounts.OrderBy(s => s.AccountRole).ToList(),
+                "role_desc" => systemAccounts.OrderByDescending(s => s.AccountRole).ToList(),
+                _ => systemAccounts.OrderBy(s => s.AccountName).ToList(),
+            };
+
+            int pageSize = 10;
+            return View(await PaginatedList<SystemAccount>.CreateAsync(systemAccounts.AsQueryable(), pageNumber ?? 1, pageSize));
         }
 
         public async Task<IActionResult> Details(short? id)
