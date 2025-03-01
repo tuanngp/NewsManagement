@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+﻿﻿<!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="utf-8" />
@@ -161,6 +161,7 @@
                         @if (User.Identity?.IsAuthenticated ?? false)
                         {
                             <span class="user-info">Xin chào, @User.Identity.Name</span>
+                            <a class="btn-auth btn-login" asp-controller="SystemAccounts" asp-action="Profile">Hồ sơ</a>
                             <form asp-area="" asp-controller="SystemAccounts" asp-action="Logout" method="post">
                                 <button type="submit" class="btn-auth btn-logout">Đăng xuất</button>
                             </form>

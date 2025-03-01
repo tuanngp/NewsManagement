@@ -1,4 +1,4 @@
-﻿using System.Security.Claims;
+﻿﻿﻿using System.Security.Claims;
 using BusinessObjects.Models;
 using FUNewsManagementSystem.Helpers;
 using Microsoft.AspNetCore.Authentication;
@@ -13,7 +13,6 @@ using Services;
 
 namespace FUNewsManagementSystem.Controllers
 {
-    [Authorize(Roles = "Admin")]
     public class SystemAccountsController : Controller
     {
         private readonly ISystemAccountService _systemAccountService;
@@ -146,6 +145,72 @@ namespace FUNewsManagementSystem.Controllers
             {
                 ModelState.AddModelError("", "Đã xảy ra lỗi khi xóa. Vui lòng thử lại.");
                 return View();
+            }
+        }
+
+        [Authorize]
+        public async Task<IActionResult> Profile()
+        {
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userId) || !short.TryParse(userId, out short id))
+            {
+                return NotFound();
+            }
+
+            var account = await _systemAccountService.GetByIdAsync(id);
+            if (account == null)
+            {
+                return NotFound();
+            }
+
+            return View(account);
+        }
+
+        [Authorize]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UpdateProfile([Bind("AccountId,AccountName,AccountEmail,AccountPassword")] SystemAccount account)
+        {
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userId) || !short.TryParse(userId, out short id))
+            {
+                return NotFound();
+            }
+
+            if (id != account.AccountId)
+            {
+                return NotFound();
+            }
+
+            if (!ModelState.IsValid)
+            {
+                return View("Profile", account);
+            }
+
+            try
+            {
+                var existingAccount = await _systemAccountService.GetByIdAsync(id);
+                if (existingAccount == null)
+                {
+                    return NotFound();
+                }
+
+                // Preserve the existing role
+                account.AccountRole = existingAccount.AccountRole;
+                
+                await _systemAccountService.UpdateAsync(account);
+                
+                // Update the authentication cookie with new user details
+                await SignInAsync(account);
+                
+                TempData["SuccessMessage"] = "Profile updated successfully.";
+                return RedirectToAction(nameof(Profile));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error updating profile for user {UserId}", id);
+                ModelState.AddModelError("", "An error occurred while updating your profile.");
+                return View("Profile", account);
             }
         }
 
