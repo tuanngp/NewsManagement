@@ -6,6 +6,7 @@ using Repositories;
 using Repositories.RepositoryImpl;
 using Services;
 using Services.ServiceImpl;
+using FUNewsManagementSystem.Services;
 
 namespace FUNewsManagementSystem
 {
@@ -62,6 +63,9 @@ namespace FUNewsManagementSystem
             builder.Services.AddScoped<ICategoryService, CategoryService>();
             builder.Services.AddScoped<ITagService, TagService>();
             builder.Services.AddScoped<ISystemAccountService, SystemAccountService>();
+
+            // Đăng ký AutoPublishService như một background service
+            builder.Services.AddHostedService<AutoPublishService>();
 
             var app = builder.Build();
 

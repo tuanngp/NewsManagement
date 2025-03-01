@@ -47,4 +47,15 @@ public class NewsArticleService : INewsArticleService
             .Where(x => x.Status == ArticleStatus.Published)
             .ToListAsync();
     }
+
+    public async Task<IEnumerable<NewsArticle>> GetScheduledArticles()
+    {
+        return await _newsArticleRepository
+            .GetQueryable()
+            .Where(x => x.Status == ArticleStatus.Draft
+                   && x.ApprovalStatus == ApprovalStatus.Approved
+                   && x.PublishDate != null
+                   && x.PublishDate <= DateTime.Now)
+            .ToListAsync();
+    }
 }

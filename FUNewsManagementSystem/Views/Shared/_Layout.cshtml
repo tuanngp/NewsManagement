@@ -1,4 +1,4 @@
-﻿﻿<!DOCTYPE html>
+﻿﻿﻿﻿<!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="utf-8" />
@@ -141,22 +141,32 @@
                     <ul class="navbar-nav flex-grow-1">
                         @if(User.IsInRole("Admin")) {
                             <li class="nav-item">
-                                <a class="nav-link" asp-area="" asp-controller="SystemAccounts" asp-action="Index">System Accounts</a>
+                                <a class="nav-link" asp-area="" asp-controller="SystemAccounts" asp-action="Index">Quản lí tài khoản</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" asp-area="" asp-controller="News" asp-action="Review">Review news</a>
+                                <a class="nav-link" asp-area="" asp-controller="News" asp-action="Review">Phê duyệt tin tức</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" asp-area="" asp-controller="Statistics" asp-action="Index">
+                                    <i class="fas fa-chart-bar"></i> Thống kê
+                                </a>
                             </li>
                         }
                         @if (User.IsInRole("Staff"))
                         {
                             <li class="nav-item">
-                                <a class="nav-link" asp-area="" asp-controller="News" asp-action="Index">News</a>
+                                <a class="nav-link" asp-area="" asp-controller="News" asp-action="Index">Quản lí tin tức</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" asp-area="" asp-controller="Categories" asp-action="Index">Categories</a>
+                                <a class="nav-link" asp-area="" asp-controller="Categories" asp-action="Index">Quản lí danh mục</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" asp-area="" asp-controller="Tags" asp-action="Index">Tags</a>
+                                <a class="nav-link" asp-area="" asp-controller="Tags" asp-action="Index">Quản lí thẻ</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" asp-area="" asp-controller="Statistics" asp-action="Index">
+                                    <i class="fas fa-chart-bar"></i> Thống kê
+                                </a>
                             </li>
                         }
                     </ul>
