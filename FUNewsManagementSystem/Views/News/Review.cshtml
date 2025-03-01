@@ -1,0 +1,77 @@
+@model IEnumerable<BusinessObjects.Models.NewsArticle>
+
+@{
+    ViewData["Title"] = "Phê duyệt bài viết";
+}
+
+<div class="container mt-4">
+    <h2>Phê duyệt bài viết</h2>
+
+    <div class="row">
+        <div class="col-md-12">
+            @if (!Model.Any())
+            {
+                <div class="alert alert-info">
+                    Không có bài viết nào đang chờ phê duyệt.
+                </div>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Tiêu đề</th>
+                                <th>Tác giả</th>
+                                <th>Ngày tạo</th>
+                                <th>Ngày xuất bản</th>
+                                <th>Trạng thái</th>
+                                <th>Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var article in Model)
+                            {
+                                <tr>
+                                    <td>@article.NewsTitle</td>
+                                    <td>@(article.CreatedBy?.AccountName ?? "N/A")</td>
+                                    <td>@article.CreatedDate?.ToString("dd/MM/yyyy HH:mm")</td>
+                                    <td>@article.PublishDate?.ToString("dd/MM/yyyy HH:mm")</td>
+                                    <td>
+                                        <span class="badge bg-warning">@article.ApprovalStatus</span>
+                                    </td>
+                                    <td>
+                                        <div class="btn-group" role="group">
+                                            <a asp-action="Preview" asp-route-id="@article.NewsArticleId" 
+                                               class="btn btn-sm btn-info" target="_blank">
+                                                <i class="fas fa-eye"></i> Xem
+                                            </a>
+                                            <form asp-action="Approve" asp-route-id="@article.NewsArticleId" 
+                                                  asp-route-isApproved="true" method="post" class="d-inline">
+                                                @Html.AntiForgeryToken()
+                                                <button type="submit" class="btn btn-sm btn-success mx-1">
+                                                    <i class="fas fa-check"></i> Duyệt
+                                                </button>
+                                            </form>
+                                            <form asp-action="Approve" asp-route-id="@article.NewsArticleId" 
+                                                  asp-route-isApproved="false" method="post" class="d-inline">
+                                                @Html.AntiForgeryToken()
+                                                <button type="submit" class="btn btn-sm btn-danger">
+                                                    <i class="fas fa-times"></i> Từ chối
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://kit.fontawesome.com/your-font-awesome-kit.js"></script>
+}

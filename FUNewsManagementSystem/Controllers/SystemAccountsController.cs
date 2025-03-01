@@ -1,4 +1,4 @@
-﻿﻿﻿using System.Security.Claims;
+﻿using System.Security.Claims;
 using BusinessObjects.Models;
 using FUNewsManagementSystem.Helpers;
 using Microsoft.AspNetCore.Authentication;
@@ -33,7 +33,12 @@ namespace FUNewsManagementSystem.Controllers
                 configuration ?? throw new ArgumentNullException(nameof(configuration));
         }
 
-        public async Task<IActionResult> Index(string searchString, string sortOrder, int? pageNumber, string currentFilter)
+        public async Task<IActionResult> Index(
+            string searchString,
+            string sortOrder,
+            int? pageNumber,
+            string currentFilter
+        )
         {
             if (searchString != null)
             {
@@ -54,9 +59,12 @@ namespace FUNewsManagementSystem.Controllers
 
             if (!String.IsNullOrEmpty(searchString))
             {
-                systemAccounts = systemAccounts.Where(s => s.AccountName.Contains(searchString, StringComparison.OrdinalIgnoreCase)
-                                               || s.AccountEmail.Contains(searchString, StringComparison.OrdinalIgnoreCase))
-                                           .ToList();
+                systemAccounts = systemAccounts
+                    .Where(s =>
+                        s.AccountName.Contains(searchString, StringComparison.OrdinalIgnoreCase)
+                        || s.AccountEmail.Contains(searchString, StringComparison.OrdinalIgnoreCase)
+                    )
+                    .ToList();
             }
 
             systemAccounts = sortOrder switch
@@ -70,7 +78,13 @@ namespace FUNewsManagementSystem.Controllers
             };
 
             int pageSize = 10;
-            return View(await PaginatedList<SystemAccount>.CreateAsync(systemAccounts.AsQueryable(), pageNumber ?? 1, pageSize));
+            return View(
+                await PaginatedList<SystemAccount>.CreateAsync(
+                    systemAccounts.AsQueryable(),
+                    pageNumber ?? 1,
+                    pageSize
+                )
+            );
         }
 
         public async Task<IActionResult> Details(short? id)
@@ -169,7 +183,9 @@ namespace FUNewsManagementSystem.Controllers
         [Authorize]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> UpdateProfile([Bind("AccountId,AccountName,AccountEmail,AccountPassword")] SystemAccount account)
+        public async Task<IActionResult> UpdateProfile(
+            [Bind("AccountId,AccountName,AccountEmail,AccountPassword")] SystemAccount account
+        )
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(userId) || !short.TryParse(userId, out short id))
@@ -197,12 +213,12 @@ namespace FUNewsManagementSystem.Controllers
 
                 // Preserve the existing role
                 account.AccountRole = existingAccount.AccountRole;
-                
+
                 await _systemAccountService.UpdateAsync(account);
-                
+
                 // Update the authentication cookie with new user details
                 await SignInAsync(account);
-                
+
                 TempData["SuccessMessage"] = "Profile updated successfully.";
                 return RedirectToAction(nameof(Profile));
             }
@@ -299,12 +315,20 @@ namespace FUNewsManagementSystem.Controllers
 
             if (email == adminEmail && password == adminPassword)
             {
-                var admin = new SystemAccount
+                var admin = _systemAccountService.Login(email!, password!);
+                if (admin == null)
                 {
-                    AccountRole = 0,
-                    AccountName = "Administrator",
-                    AccountEmail = adminEmail,
-                };
+                    admin = new SystemAccount
+                    {
+                        AccountId = 0,
+                        AccountRole = 0,
+                        AccountName = "Administrator",
+                        AccountEmail = adminEmail,
+                        AccountPassword = adminPassword,
+                    };
+                    await _systemAccountService.AddAsync(admin);
+                }
+
                 await SignInAsync(admin);
                 return RedirectToValidUrl(returnUrl);
             }

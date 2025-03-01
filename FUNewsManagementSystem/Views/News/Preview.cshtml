@@ -1,0 +1,79 @@
+@model BusinessObjects.Models.NewsArticle
+
+@{
+    ViewData["Title"] = "Preview - " + Model.NewsTitle;
+}
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                    <h4 class="mb-0">Xem trước bài viết</h4>
+                    <div>
+                        <a asp-action="Edit" asp-route-id="@Model.NewsArticleId" class="btn btn-light">
+                            <i class="fas fa-edit"></i> Chỉnh sửa
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="preview-status mb-3">
+                        <span class="badge @(Model.Status == BusinessObjects.Models.ArticleStatus.Draft ? "bg-warning" : "bg-success")">
+                            @Model.Status
+                        </span>
+                        <span class="badge @(Model.ApprovalStatus == BusinessObjects.Models.ApprovalStatus.Pending ? "bg-warning" : 
+                                        Model.ApprovalStatus == BusinessObjects.Models.ApprovalStatus.Approved ? "bg-success" : "bg-danger")">
+                            @Model.ApprovalStatus
+                        </span>
+                    </div>
+
+                    <h2 class="article-title">@Model.NewsTitle</h2>
+                    <h5 class="article-headline text-muted mb-4">@Model.Headline</h5>
+
+                    <div class="article-metadata mb-3">
+                        <small class="text-muted">
+                            <i class="fas fa-calendar"></i> Ngày tạo: @Model.CreatedDate?.ToString("dd/MM/yyyy HH:mm")
+                            @if (Model.PublishDate.HasValue)
+                            {
+                                <span class="mx-2">|</span>
+                                <i class="fas fa-clock"></i> <span>Ngày xuất bản: @Model.PublishDate?.ToString("dd/MM/yyyy HH:mm")</span>
+                                            }
+                            @if (!string.IsNullOrEmpty(Model.NewsSource))
+                            {
+                            <span class="mx-2">|</span>
+                                <i class="fas fa-link"></i> <span> Nguồn: @Model.NewsSource</span>
+                            }
+                        </small>
+                    </div>
+
+                    @if (Model.Category != null)
+                    {
+                        <div class="article-category mb-3">
+                            <span class="badge bg-secondary">
+                                <i class="fas fa-folder"></i> @Model.Category.CategoryName
+                            </span>
+                        </div>
+                    }
+
+                    <div class="article-content mt-4">
+                        @Html.Raw(Model.NewsContent)
+                    </div>
+
+                    @if (Model.Tags != null && Model.Tags.Any())
+                    {
+                        <div class="article-tags mt-4">
+                            @foreach (var tag in Model.Tags)
+                            {
+                                <span class="badge bg-info me-1">@tag.TagName</span>
+                            }
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://kit.fontawesome.com/your-font-awesome-kit.js"></script>
+}

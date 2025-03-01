@@ -44,7 +44,7 @@ public class NewsArticleService : INewsArticleService
     {
         return await _newsArticleRepository
             .GetQueryable()
-            .Where(x => x.NewsStatus == true)
+            .Where(x => x.Status == ArticleStatus.Published)
             .ToListAsync();
     }
 }

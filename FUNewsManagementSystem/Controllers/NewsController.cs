@@ -54,6 +54,7 @@ namespace FUNewsManagementSystem.Controllers
             ViewData["DateSortParm"] = sortOrder == "Date" ? "date_desc" : "Date";
             ViewData["CategorySortParm"] = sortOrder == "Category" ? "category_desc" : "Category";
             ViewData["StatusSortParm"] = sortOrder == "Status" ? "status_desc" : "Status";
+            ViewData["ApprovalSortParm"] = sortOrder == "Approval" ? "approval_desc" : "Approval";
 
             var newsArticles = await _newsArticleService.GetAllAsync();
 
@@ -93,8 +94,10 @@ namespace FUNewsManagementSystem.Controllers
                 "category_desc" => newsArticles
                     .OrderByDescending(s => s.Category != null ? s.Category.CategoryName : "")
                     .ToList(),
-                "Status" => newsArticles.OrderBy(s => s.NewsStatus).ToList(),
-                "status_desc" => newsArticles.OrderByDescending(s => s.NewsStatus).ToList(),
+                "Status" => newsArticles.OrderBy(s => s.Status).ToList(),
+                "status_desc" => newsArticles.OrderByDescending(s => s.Status).ToList(),
+                "Approval" => newsArticles.OrderBy(s => s.ApprovalStatus).ToList(),
+                "approval_desc" => newsArticles.OrderByDescending(s => s.ApprovalStatus).ToList(),
                 _ => newsArticles.OrderBy(s => s.NewsTitle).ToList(),
             };
 
@@ -114,6 +117,63 @@ namespace FUNewsManagementSystem.Controllers
             return await HandleEntityAction(id, _newsArticleService.GetByIdAsync, "Details");
         }
 
+        // Action cho chức năng Preview
+        [Authorize(Roles = "Staff, Admin")]
+        public async Task<IActionResult> Preview(string id)
+        {
+            if (string.IsNullOrEmpty(id))
+                return NotFound();
+
+            var article = await _newsArticleService.GetByIdAsync(id);
+            if (article == null)
+                return NotFound();
+
+            // Chỉ cho phép preview các bài viết draft
+            if (article.Status != ArticleStatus.Draft)
+            {
+                return RedirectToAction(nameof(Details), new { id });
+            }
+
+            return View(article);
+        }
+
+        // Action cho chức năng Review
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> Review()
+        {
+            var pendingArticles = (await _newsArticleService.GetAllAsync())
+                .Where(a => a.ApprovalStatus == ApprovalStatus.Pending)
+                .OrderByDescending(a => a.CreatedDate)
+                .ToList();
+
+            return View(pendingArticles);
+        }
+
+        // Action cho chức năng Approve/Reject
+        [Authorize(Roles = "Admin")]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Approve(string id, bool isApproved)
+        {
+            var article = await _newsArticleService.GetByIdAsync(id);
+            if (article == null)
+                return NotFound();
+
+            var userId = short.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+
+            article.ApprovalStatus = isApproved ? ApprovalStatus.Approved : ApprovalStatus.Rejected;
+            article.ApprovedById = userId;
+            article.ApprovedDate = DateTime.Now;
+
+            if (isApproved && article.PublishDate <= DateTime.Now)
+            {
+                article.Status = ArticleStatus.Published;
+            }
+
+            await _newsArticleService.UpdateAsync(article);
+            return RedirectToAction(nameof(Review));
+        }
+
         [Authorize(Roles = "Staff")]
         public async Task<IActionResult> Create()
         {
@@ -124,24 +184,40 @@ namespace FUNewsManagementSystem.Controllers
         [Authorize(Roles = "Staff")]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(NewsArticle newsArticle)
+        public async Task<IActionResult> Create(NewsArticle newsArticle, bool saveAsDraft)
         {
             newsArticle.CreatedDate = DateTime.Now;
             newsArticle.ModifiedDate = DateTime.Now;
-            newsArticle.NewsArticleId = Guid.NewGuid().ToString().Substring(0, 20);
+            newsArticle.NewsArticleId = Guid.NewGuid().ToString().Substring(0, 19);
             var userId = short.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
 
             newsArticle.CreatedById = userId;
             newsArticle.UpdatedById = userId;
 
+            // Xử lý trạng thái bài viết
+            newsArticle.Status = saveAsDraft ? ArticleStatus.Draft : ArticleStatus.Published;
+
+            // Nếu không phải draft, kiểm tra ngày xuất bản
+            if (!saveAsDraft)
+            {
+                if (newsArticle.PublishDate == null || newsArticle.PublishDate <= DateTime.Now)
+                {
+                    newsArticle.Status = ArticleStatus.Published;
+                    newsArticle.PublishDate = DateTime.Now;
+                }
+                else
+                {
+                    newsArticle.Status = ArticleStatus.Draft;
+                }
+            }
+
             if (!ModelState.IsValid)
             {
-                var errors = ModelState
-                    .Values.SelectMany(v => v.Errors)
-                    .Select(e => e.ErrorMessage);
-                ModelState.AddModelError("", "Error: " + string.Join("; ", errors));
-
                 await PrepareDropdownLists();
+                ModelState.AddModelError(
+                    "",
+                    "Có lỗi xảy ra khi tạo bài viết. Vui lòng kiểm tra lại."
+                );
                 return View(newsArticle);
             }
             return await HandleCreateUpdate(
@@ -161,12 +237,35 @@ namespace FUNewsManagementSystem.Controllers
         [Authorize(Roles = "Staff")]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(NewsArticle newsArticle)
+        public async Task<IActionResult> Edit(NewsArticle newsArticle, bool saveAsDraft)
         {
             var userId = short.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
 
             newsArticle.ModifiedDate = DateTime.Now;
             newsArticle.UpdatedById = userId;
+
+            // Xử lý trạng thái bài viết
+            if (saveAsDraft)
+            {
+                newsArticle.Status = ArticleStatus.Draft;
+            }
+            else
+            {
+                if (newsArticle.PublishDate == null || newsArticle.PublishDate <= DateTime.Now)
+                {
+                    newsArticle.Status = ArticleStatus.Published;
+                    newsArticle.PublishDate = DateTime.Now;
+                }
+                else
+                {
+                    newsArticle.Status = ArticleStatus.Draft;
+                }
+            }
+
+            // Reset approval status khi có chỉnh sửa
+            newsArticle.ApprovalStatus = ApprovalStatus.Pending;
+            newsArticle.ApprovedById = null;
+            newsArticle.ApprovedDate = null;
 
             if (!ModelState.IsValid)
             {
@@ -240,7 +339,6 @@ namespace FUNewsManagementSystem.Controllers
 
                 foreach (var parent in parentCategories)
                 {
-                    // Thêm danh mục cha với Value là CategoryId, không Disabled
                     categoryItems.Add(
                         new SelectListItem
                         {
@@ -249,7 +347,6 @@ namespace FUNewsManagementSystem.Controllers
                         }
                     );
 
-                    // Thêm danh mục con với thụt đầu dòng
                     var subCategories = categories
                         .Where(c => c.ParentCategoryId == parent.CategoryId)
                         .ToList();
@@ -265,7 +362,6 @@ namespace FUNewsManagementSystem.Controllers
                     }
                 }
 
-                // Trường hợp không có danh mục cha
                 if (!parentCategories.Any())
                 {
                     categoryItems.AddRange(
