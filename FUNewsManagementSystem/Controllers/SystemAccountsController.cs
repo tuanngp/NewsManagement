@@ -120,8 +120,22 @@ namespace FUNewsManagementSystem.Controllers
                 SystemAccount systemAccount
         )
         {
+            var existingAccount = await _systemAccountService.GetByIdAsync(systemAccount.AccountId);
+            if (existingAccount == null)
+            {
+                return NotFound();
+            }
+
+            existingAccount.AccountName = systemAccount.AccountName;
+            existingAccount.AccountEmail = systemAccount.AccountEmail;
+            existingAccount.AccountRole = systemAccount.AccountRole;
+            if (!string.IsNullOrEmpty(systemAccount.AccountPassword))
+            {
+                existingAccount.AccountPassword = systemAccount.AccountPassword;
+            }
+
             return await HandleCreateUpdate(
-                systemAccount,
+                existingAccount,
                 _systemAccountService.UpdateAsync,
                 nameof(Index)
             );
@@ -184,7 +198,7 @@ namespace FUNewsManagementSystem.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> UpdateProfile(
-            [Bind("AccountId,AccountName,AccountEmail,AccountPassword")] SystemAccount account
+            [Bind("AccountId,AccountName,AccountEmail,AccountPassword")] SystemAccount systemAccount
         )
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
@@ -193,14 +207,9 @@ namespace FUNewsManagementSystem.Controllers
                 return NotFound();
             }
 
-            if (id != account.AccountId)
+            if (id != systemAccount.AccountId)
             {
                 return NotFound();
-            }
-
-            if (!ModelState.IsValid)
-            {
-                return View("Profile", account);
             }
 
             try
@@ -212,12 +221,16 @@ namespace FUNewsManagementSystem.Controllers
                 }
 
                 // Preserve the existing role
-                account.AccountRole = existingAccount.AccountRole;
+                existingAccount.AccountName = systemAccount.AccountName;
+                if (!string.IsNullOrEmpty(systemAccount.AccountPassword))
+                {
+                    existingAccount.AccountPassword = systemAccount.AccountPassword;
+                }
 
-                await _systemAccountService.UpdateAsync(account);
+                await _systemAccountService.UpdateAsync(existingAccount);
 
                 // Update the authentication cookie with new user details
-                await SignInAsync(account);
+                await SignInAsync(existingAccount);
 
                 TempData["SuccessMessage"] = "Profile updated successfully.";
                 return RedirectToAction(nameof(Profile));
@@ -226,7 +239,7 @@ namespace FUNewsManagementSystem.Controllers
             {
                 _logger.LogError(ex, "Error updating profile for user {UserId}", id);
                 ModelState.AddModelError("", "An error occurred while updating your profile.");
-                return View("Profile", account);
+                return View("Profile", systemAccount);
             }
         }
 
@@ -251,8 +264,6 @@ namespace FUNewsManagementSystem.Controllers
             Func<Exception, IActionResult>? customExceptionHandler = null
         )
         {
-            if (!ModelState.IsValid)
-                return View(entity);
             try
             {
                 await action(entity);
@@ -276,11 +287,6 @@ namespace FUNewsManagementSystem.Controllers
             }
         }
 
-        private async Task<bool> SystemAccountExists(short id)
-        {
-            return await _systemAccountService.GetByIdAsync(id) != null;
-        }
-
         [AllowAnonymous]
         [HttpGet]
         public IActionResult Login(string returnUrl = "/Home/Index")
@@ -298,8 +304,7 @@ namespace FUNewsManagementSystem.Controllers
         )
         {
             if (
-                !ModelState.IsValid
-                || string.IsNullOrEmpty(systemAccount.AccountEmail)
+                string.IsNullOrEmpty(systemAccount.AccountEmail)
                 || string.IsNullOrEmpty(systemAccount.AccountPassword)
             )
             {
@@ -376,10 +381,8 @@ namespace FUNewsManagementSystem.Controllers
             var account = _systemAccountService.FindByEmail(email!);
             if (account == null)
             {
-                var id = _systemAccountService.GetAllAsync().Result.Count() + 1;
                 account = new SystemAccount
                 {
-                    AccountId = (short)id,
                     AccountEmail = email,
                     AccountName = name,
                     AccountRole = 2,

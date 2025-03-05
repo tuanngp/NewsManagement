@@ -1,19 +1,21 @@
-﻿@model FUNewsManagementSystem.Helpers.PaginatedList<BusinessObjects.Models.Category>
+﻿﻿﻿﻿@using BusinessObjects.Models﻿
+@model FUNewsManagementSystem.Helpers.PaginatedList<Category>
+
 @{
-    ViewData["Title"] = "Category Management";
+    ViewData["Title"] = "Quản lý danh mục";
 }
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
 
 <div class="table-container fade-in">
-    <h1 class="page-title">Category Management</h1>
+    <h1 class="page-title">Quản lý danh mục</h1>
 
     <div class="actions-container">
         <div class="search-box">
             <form asp-action="Index" method="get" class="search-form">
                 <div class="input-group">
-                    <input type="text" name="SearchString" value="@ViewData["CurrentFilter"]" class="form-control search-input" placeholder="Search categories..." />
+                    <input type="text" name="SearchString" value="@ViewData["CurrentFilter"]" class="form-control search-input" placeholder="Tìm kiếm danh mục..." />
                     <button type="submit" class="btn btn-primary">
                         <i class="fas fa-search"></i>
                     </button>
@@ -31,14 +33,14 @@
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
             </svg>
-            Create New Category
+            Tạo danh mục mới
         </a>
     </div>
 
     @if (!Model.Any())
     {
         <div class="table-empty">
-            <p>No categories found. Create your first category to get started.</p>
+            <p>Không tìm thấy danh mục nào. Hãy tạo danh mục mới để bắt đầu.</p>
         </div>
     }
     else
@@ -49,27 +51,27 @@
                     <tr>
                         <th class="py-3 px-4">
                             <a asp-action="Index" asp-route-sortOrder="@ViewData["NameSortParm"]" asp-route-currentFilter="@ViewData["CurrentFilter"]" class="sort-link">
-                                Category Name
+                                Tên danh mục
                                 <i class="fas @(ViewData["CurrentSort"]?.ToString() == "name_desc" ? "fa-sort-down" : 
                                               ViewData["CurrentSort"]?.ToString() == "" ? "fa-sort-up" : "fa-sort")"></i>
                             </a>
                         </th>
                         <th class="py-3 px-4">
                             <a asp-action="Index" asp-route-sortOrder="@ViewData["DescriptionSortParm"]" asp-route-currentFilter="@ViewData["CurrentFilter"]" class="sort-link">
-                                Description
+                                Mô tả
                                 <i class="fas @(ViewData["CurrentSort"]?.ToString() == "Description" ? "fa-sort-up" : 
                                               ViewData["CurrentSort"]?.ToString() == "description_desc" ? "fa-sort-down" : "fa-sort")"></i>
                             </a>
                         </th>
                         <th class="py-3 px-4">
                             <a asp-action="Index" asp-route-sortOrder="@ViewData["StatusSortParm"]" asp-route-currentFilter="@ViewData["CurrentFilter"]" class="sort-link">
-                                Status
+                                Trạng thái
                                 <i class="fas @(ViewData["CurrentSort"]?.ToString() == "Status" ? "fa-sort-up" : 
                                               ViewData["CurrentSort"]?.ToString() == "status_desc" ? "fa-sort-down" : "fa-sort")"></i>
                             </a>
                         </th>
-                        <th class="py-3 px-4">Parent Category</th>
-                        <th class="py-3 px-4">Actions</th>
+                        <th class="py-3 px-4">Danh mục cha</th>
+                        <th class="py-3 px-4">Thao tác</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -80,7 +82,7 @@
                             <td class="py-3 px-4">@Html.DisplayFor(modelItem => item.CategoryDesciption)</td>
                             <td class="py-3 px-4">
                                 <span class="status-badge @(item.IsActive ?? false ? "status-active" : "status-inactive")">
-                                    @(item.IsActive ?? false ? "Active" : "Inactive")
+                                    @(item.IsActive ?? false ? "Hoạt động" : "Ngừng hoạt động")
                                 </span>
                             </td>
                             <td class="py-3 px-4">
@@ -90,15 +92,15 @@
                                 <div class="d-flex gap-2">
                                     <a asp-action="Edit" asp-route-id="@item.CategoryId" class="btn-custom btn-edit">
                                         <i class="fas fa-edit"></i>
-                                        Edit
+                                        Sửa
                                     </a>
                                     <a asp-action="Details" asp-route-id="@item.CategoryId" class="btn-custom btn-details">
                                         <i class="fas fa-info-circle"></i>
-                                        Details
+                                        Chi tiết
                                     </a>
                                     <a asp-action="Delete" asp-route-id="@item.CategoryId" class="btn-custom btn-delete">
                                         <i class="fas fa-trash"></i>
-                                        Delete
+                                        Xóa
                                     </a>
                                 </div>
                             </td>
@@ -114,7 +116,7 @@
                 var nextDisabled = !Model.HasNextPage ? "disabled" : "";
             }
             <nav aria-label="Page navigation">
-                <ul class="pagination justify-content-center">
+                <ul class="pagination justify-content-center align-items-center">
                     <li class="page-item @prevDisabled">
                         <a class="page-link" asp-action="Index"
                            asp-route-sortOrder="@ViewData["CurrentSort"]"
@@ -125,7 +127,7 @@
                     </li>
                     <li class="page-item">
                         <span class="page-link">
-                            Page @Model.PageIndex of @Model.TotalPages
+                            Trang @Model.PageIndex / @Model.TotalPages
                         </span>
                     </li>
                     <li class="page-item @nextDisabled">
@@ -135,6 +137,20 @@
                            asp-route-currentFilter="@ViewData["CurrentFilter"]">
                             <i class="fas fa-chevron-right"></i>
                         </a>
+                    </li>
+                    <li class="page-item ms-2">
+                        <div class="d-flex align-items-center goto-page-container">
+                            <input type="number" 
+                                   id="gotoPage" 
+                                   class="form-control goto-page-input" 
+                                   min="1" 
+                                   max="@Model.TotalPages" 
+                                   placeholder="Trang..." />
+                            <button onclick="gotoPage('@ViewData["CurrentSort"]', '@ViewData["CurrentFilter"]')" 
+                                    class="btn btn-primary goto-page-button">
+                                <i class="fas fa-arrow-right"></i>
+                            </button>
+                        </div>
                     </li>
                 </ul>
             </nav>
@@ -348,6 +364,35 @@
         border-color: #dee2e6;
     }
 
+    /* Goto page styles */
+    .goto-page-container {
+        gap: 0.5rem;
+    }
+
+    .goto-page-input {
+        width: 80px;
+        text-align: center;
+        border-radius: 6px;
+        border: 1px solid #e5e7eb;
+        padding: 0.4rem;
+    }
+
+    .goto-page-input:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.1);
+    }
+
+    .goto-page-button {
+        padding: 0.4rem 0.8rem;
+        border-radius: 6px;
+        transition: all 0.3s ease;
+    }
+
+    .goto-page-button:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.1);
+    }
+
     /* Animation classes */
     .fade-in {
         animation: fadeIn 0.5s ease-in;
@@ -373,3 +418,37 @@
 </style>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    function gotoPage(sortOrder, currentFilter) {
+        const pageInput = document.getElementById('gotoPage');
+        const pageNumber = parseInt(pageInput.value);
+        const maxPage = parseInt(pageInput.getAttribute('max'));
+        
+        if (pageNumber && pageNumber > 0 && pageNumber <= maxPage) {
+            const url = new URL(window.location.href);
+            url.searchParams.set('pageNumber', pageNumber);
+            
+            if (sortOrder) {
+                url.searchParams.set('sortOrder', sortOrder);
+            }
+            
+            if (currentFilter) {
+                url.searchParams.set('currentFilter', currentFilter);
+            }
+            
+            window.location.href = url.toString();
+        } else {
+            alert('Vui lòng nhập số trang hợp lệ từ 1 đến ' + maxPage);
+        }
+    }
+
+    // Handle Enter key press
+    document.getElementById('gotoPage').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            const sortOrder = '@ViewData["CurrentSort"]';
+            const currentFilter = '@ViewData["CurrentFilter"]';
+            gotoPage(sortOrder, currentFilter);
+        }
+    });
+</script>

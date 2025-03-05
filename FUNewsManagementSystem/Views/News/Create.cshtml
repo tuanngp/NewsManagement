@@ -1,107 +1,256 @@
-﻿@using BusinessObjects.Models
+﻿﻿@using BusinessObjects.Models
 @model NewsArticle
 @{
     ViewData["Title"] = "Tạo Bài Viết Mới";
 }
 
-<div class="news-form-container fade-in">
-    <div class="form-header">
-        <h2 class="form-title">Tạo Bài Viết Mới</h2>
-        <h4 class="form-subtitle">Điền thông tin chi tiết để tạo bài viết của bạn</h4>
-    </div>
+<div class="news-form-container">
+    <div class="card shadow-lg border-0 rounded-lg">
+        <div class="card-header bg-gradient-primary text-white">
+            <h2 class="form-title mb-0"><i class="fas fa-plus-circle me-2"></i>Tạo Bài Viết Mới</h2>
+            <p class="form-subtitle text-white-50 mb-0 mt-1">Điền thông tin chi tiết để tạo bài viết của bạn</p>
+        </div>
+        <div class="card-body">
+            <form asp-action="Create" class="needs-validation" novalidate method="post" id="createForm">
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger validation-summary" role="alert"></div>
 
-    <form asp-action="Create" class="needs-validation" novalidate method="post" id="createForm">
-        <div asp-validation-summary="ModelOnly" class="validation-summary"></div>
-
-        <div class="form-grid">
-            <div class="form-group">
-                <label asp-for="NewsTitle" class="control-label">
-                    <i class="fas fa-heading"></i> Tiêu đề
-                </label>
-                <input asp-for="NewsTitle" class="form-control" placeholder="Nhập tiêu đề bài viết..." />
-                <span asp-validation-for="NewsTitle" class="text-danger"></span>
-            </div>
-
-            <div class="form-group">
-                <label asp-for="CategoryId" class="control-label">
-                    <i class="fas fa-folder"></i> Danh mục
-                </label>
-                <div class="category-select-wrapper">
-                    <select asp-for="CategoryId" class="category-select">
-                        <option value="">-- Chọn danh mục --</option>
-                        @if (ViewBag.CategoryId != null)
-                        {
-                            @foreach (var item in ViewBag.CategoryId as IEnumerable<SelectListItem>)
-                            {
-                                <option value="@item.Value">@item.Text</option>
-                            }
-                        }
-                        else
-                        {
-                            <option value="">Không có danh mục</option>
-                        }
-                    </select>
+                <div class="row mb-4">
+                    <div class="col-md-8">
+                        <div class="form-group mb-4">
+                            <label asp-for="NewsTitle" class="control-label form-label fw-bold">
+                                <i class="fas fa-heading text-primary me-1"></i> Tiêu đề
+                            </label>
+                            <input asp-for="NewsTitle" class="form-control form-control-lg rounded-3 shadow-sm" placeholder="Nhập tiêu đề bài viết..." />
+                            <span asp-validation-for="NewsTitle" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group mb-4">
+                            <label asp-for="CategoryId" class="control-label form-label fw-bold">
+                                <i class="fas fa-folder text-primary me-1"></i> Danh mục
+                            </label>
+                            <div class="category-select-wrapper">
+                                <select asp-for="CategoryId" class="form-select rounded-3 shadow-sm">
+                                    <option value="">-- Chọn danh mục --</option>
+                                    @if (ViewBag.CategoryId != null)
+                                    {
+                                        @foreach (var item in ViewBag.CategoryId as IEnumerable<SelectListItem>)
+                                        {
+                                            <option value="@item.Value">@item.Text</option>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <option value="">Không có danh mục</option>
+                                    }
+                                </select>
+                            </div>
+                            <span asp-validation-for="CategoryId" class="text-danger"></span>
+                        </div>
+                    </div>
                 </div>
-                <span asp-validation-for="CategoryId" class="text-danger"></span>
-            </div>
 
-            <div class="form-group full-width">
-                <label asp-for="Headline" class="control-label">
-                    <i class="fas fa-quote-left"></i> Tóm tắt
-                </label>
-                <input asp-for="Headline" class="form-control" placeholder="Tóm tắt ngắn gọn nội dung..." />
-                <span asp-validation-for="Headline" class="text-danger"></span>
-            </div>
+                <div class="form-group mb-4">
+                    <label asp-for="Headline" class="control-label form-label fw-bold">
+                        <i class="fas fa-quote-left text-primary me-1"></i> Tóm tắt
+                    </label>
+                    <textarea asp-for="Headline" class="form-control rounded-3 shadow-sm" placeholder="Tóm tắt ngắn gọn nội dung..." rows="2"></textarea>
+                    <span asp-validation-for="Headline" class="text-danger"></span>
+                </div>
 
-            <div class="form-group full-width">
-                <label asp-for="NewsContent" class="control-label">
-                    <i class="fas fa-file-alt"></i> Nội dung
-                </label>
-                <textarea asp-for="NewsContent" id="editor" class="form-control"></textarea>
-                <span asp-validation-for="NewsContent" class="text-danger"></span>
-            </div>
+                <div class="form-group mb-4">
+                    <label asp-for="NewsContent" class="control-label form-label fw-bold">
+                        <i class="fas fa-file-alt text-primary me-1"></i> Nội dung
+                    </label>
+                    <div class="editor-container shadow-sm rounded-3 overflow-hidden">
+                        <textarea asp-for="NewsContent" id="editor" class="form-control"></textarea>
+                    </div>
+                    <span asp-validation-for="NewsContent" class="text-danger"></span>
+                </div>
 
-            <div class="form-group">
-                <label asp-for="NewsSource" class="control-label">
-                    <i class="fas fa-link"></i> Nguồn tin
-                </label>
-                <input asp-for="NewsSource" class="form-control" placeholder="Nguồn bài viết (nếu có)..." />
-                <span asp-validation-for="NewsSource" class="text-danger"></span>
-            </div>
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label asp-for="NewsSource" class="control-label form-label fw-bold">
+                                <i class="fas fa-link text-primary me-1"></i> Nguồn tin
+                            </label>
+                            <input asp-for="NewsSource" class="form-control rounded-3 shadow-sm" placeholder="Nguồn bài viết (nếu có)..." />
+                            <span asp-validation-for="NewsSource" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label asp-for="PublishDate" class="control-label form-label fw-bold">
+                                <i class="fas fa-calendar text-primary me-1"></i> Ngày xuất bản
+                            </label>
+                            <input asp-for="PublishDate" type="datetime-local" class="form-control rounded-3 shadow-sm" />
+                            <span asp-validation-for="PublishDate" class="text-danger"></span>
+                            <small class="text-muted fst-italic"><i class="fas fa-info-circle me-1"></i>Để trống nếu muốn xuất bản ngay</small>
+                        </div>
+                    </div>
+                </div>
 
-            <div class="form-group">
-                <label asp-for="PublishDate" class="control-label">
-                    <i class="fas fa-calendar"></i> Ngày xuất bản
-                </label>
-                <input asp-for="PublishDate" type="datetime-local" class="form-control" />
-                <span asp-validation-for="PublishDate" class="text-danger"></span>
-                <small class="text-muted">Để trống nếu muốn xuất bản ngay</small>
-            </div>
-
-            <input type="hidden" asp-for="Status" id="articleStatus" />
-            <input type="hidden" name="saveAsDraft" id="saveAsDraft" value="false" />
+                <input type="hidden" asp-for="Status" id="articleStatus" />
+                <input type="hidden" name="saveAsDraft" id="saveAsDraft" value="false" />
+            </form>
         </div>
-
-        <div class="form-actions">
-            <div class="btn-group">
-                <a href="javascript:void(0)" class="btn btn-info preview-button" onclick="previewDraft()">
-                    <i class="fas fa-eye"></i> Xem trước
+        <div class="card-footer bg-light">
+            <div class="form-actions d-flex justify-content-between">
+                <div class="action-group">
+                    <a href="javascript:void(0)" class="btn btn-info rounded-pill shadow-sm preview-button me-2" onclick="previewDraft()">
+                        <i class="fas fa-eye me-1"></i> Xem trước
+                    </a>
+                    <button type="button" class="btn btn-warning rounded-pill shadow-sm me-2" onclick="saveDraft()">
+                        <i class="fas fa-save me-1"></i> Lưu nháp
+                    </button>
+                    <button type="submit" class="btn btn-primary rounded-pill shadow-sm" onclick="publishArticle()">
+                        <i class="fas fa-paper-plane me-1"></i> Xuất bản
+                    </button>
+                </div>
+                <a asp-action="Index" class="btn btn-secondary rounded-pill shadow-sm">
+                    <i class="fas fa-arrow-left me-1"></i> Quay lại
                 </a>
-                <button type="button" class="btn btn-warning" onclick="saveDraft()">
-                    <i class="fas fa-save"></i> Lưu nháp
-                </button>
-                <button type="submit" class="btn btn-primary" onclick="publishArticle()">
-                    <i class="fas fa-paper-plane"></i> Xuất bản
-                </button>
             </div>
-            <a asp-action="Index" class="btn btn-secondary">
-                <i class="fas fa-arrow-left"></i> Quay lại
-            </a>
         </div>
-    </form>
+    </div>
 </div>
 
 @section Scripts {
+    <style>
+        /* Container chính */
+        .news-form-container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        /* Card và header */
+        .card {
+            border: none;
+            border-radius: 1rem;
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+        }
+
+        .bg-gradient-primary {
+            background: linear-gradient(135deg, #2c3e50, #3498db);
+        }
+
+        .card-header {
+            padding: 2rem;
+            border-bottom: none;
+        }
+
+        .form-title {
+            font-size: 1.75rem;
+            font-weight: 700;
+        }
+
+        .form-subtitle {
+            font-size: 1rem;
+        }
+
+        /* Nhãn và trường nhập liệu */
+        .control-label {
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 0.75rem;
+        }
+
+        .form-control, .form-select {
+            padding: 0.75rem 1.25rem;
+            font-size: 1.1rem;
+            border-radius: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: #3498db;
+            box-shadow: 0 0 0 0.25rem rgba(52, 152, 219, 0.25);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        /* Trình soạn thảo CKEditor */
+        .editor-container {
+            border: 1px solid #dee2e6;
+            border-radius: 0.5rem;
+            overflow: hidden;
+        }
+
+        .ck-editor__editable {
+            min-height: 400px;
+            border: none;
+        }
+
+        /* Nút hành động */
+        .btn {
+            padding: 0.75rem 1.5rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn-primary {
+            background-color: #3498db;
+            border-color: #3498db;
+        }
+
+        .btn-primary:hover {
+            background-color: #2980b9;
+            border-color: #2980b9;
+        }
+
+        .btn-warning {
+            background-color: #f39c12;
+            border-color: #f39c12;
+        }
+
+        .btn-warning:hover {
+            background-color: #e67e22;
+            border-color: #e67e22;
+        }
+
+        .btn-info {
+            background-color: #1abc9c;
+            border-color: #1abc9c;
+        }
+
+        .btn-info:hover {
+            background-color: #16a085;
+            border-color: #16a085;
+        }
+
+        .action-group .btn {
+            min-width: 140px;
+        }
+
+        /* Thông báo lỗi */
+        .validation-summary {
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .text-danger {
+            font-size: 0.9rem;
+            margin-top: 0.25rem;
+        }
+
+        /* Hiệu ứng animation */
+        @@keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+
     <script src="https://cdn.ckeditor.com/ckeditor5/40.1.0/classic/ckeditor.js"></script>
     <script>
         let editor;
@@ -134,10 +283,10 @@
         function publishArticle() {
             document.getElementById('saveAsDraft').value = 'false';
             document.getElementById('articleStatus').value = '@ArticleStatus.Published';
+            document.getElementById('createForm').submit();
         }
 
         function previewDraft() {
-            // Lưu nội dung hiện tại vào localStorage
             const formData = {
                 title: document.querySelector('#NewsTitle').value,
                 headline: document.querySelector('#Headline').value,
@@ -146,8 +295,6 @@
                 publishDate: document.querySelector('#PublishDate').value
             };
             localStorage.setItem('draftPreview', JSON.stringify(formData));
-
-            // Mở cửa sổ preview mới
             window.open('@Url.Action("Preview", "News")?draft=true', '_blank');
         }
     </script>

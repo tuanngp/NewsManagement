@@ -15,9 +15,17 @@ public class NewsArticleService : INewsArticleService
             newsArticleRepository ?? throw new ArgumentNullException(nameof(newsArticleRepository));
     }
 
-    public Task<IEnumerable<NewsArticle>> GetAllAsync()
+    public async Task<IEnumerable<NewsArticle>> GetAllAsync()
     {
-        return _newsArticleRepository.GetAllAsync();
+        return await _newsArticleRepository.GetAllAsync();
+    }
+
+    public async Task<IEnumerable<NewsArticle>> GetAllNewsByCreatedId(short id)
+    {
+        return await _newsArticleRepository
+            .GetQueryable()
+            .Where(x => x.CreatedById == id)
+            .ToListAsync();
     }
 
     public Task<NewsArticle?> GetByIdAsync(string id)
@@ -52,10 +60,12 @@ public class NewsArticleService : INewsArticleService
     {
         return await _newsArticleRepository
             .GetQueryable()
-            .Where(x => x.Status == ArticleStatus.Draft
-                   && x.ApprovalStatus == ApprovalStatus.Approved
-                   && x.PublishDate != null
-                   && x.PublishDate <= DateTime.Now)
+            .Where(x =>
+                x.Status == ArticleStatus.Draft
+                && x.ApprovalStatus == ApprovalStatus.Approved
+                && x.PublishDate != null
+                && x.PublishDate <= DateTime.Now
+            )
             .ToListAsync();
     }
 }

@@ -14,13 +14,19 @@
             <div class="article-status mb-4">
                 <div class="d-flex justify-content-between align-items-center p-3 bg-light rounded-3">
                     <div>
-                        <span class="badge rounded-pill @(Model.Status == ArticleStatus.Draft ? "bg-warning text-dark" : "bg-success") me-2 px-3 py-2">
-                            <i class="fas @(Model.Status == ArticleStatus.Draft ? "fa-pencil-alt" : "fa-check-circle") me-1"></i> @Model.Status
+                        <span
+                            class="badge rounded-pill @(Model.Status == ArticleStatus.Draft ? "bg-warning text-dark" : "bg-success") me-2 px-3 py-2">
+                            <i
+                                class="fas @(Model.Status == ArticleStatus.Draft ? "fa-pencil-alt" : "fa-check-circle") me-1"></i>
+                            @Model.Status
                         </span>
-                        <span class="badge rounded-pill @(Model.ApprovalStatus == ApprovalStatus.Pending ? "bg-warning text-dark" : 
-                                        Model.ApprovalStatus == ApprovalStatus.Approved ? "bg-success" : "bg-danger") px-3 py-2">
-                            <i class="fas @(Model.ApprovalStatus == ApprovalStatus.Pending ? "fa-clock" : 
-                                        Model.ApprovalStatus == ApprovalStatus.Approved ? "fa-check" : "fa-times") me-1"></i> @Model.ApprovalStatus
+                        <span
+                            class="badge rounded-pill @(Model.ApprovalStatus == ApprovalStatus.Pending ? "bg-warning text-dark" : 
+                                        Model.ApprovalStatus == ApprovalStatus.Approved ? "bg-success" : "bg-danger") px - 3 py - 2">
+                            <i
+                                class="fas @(Model.ApprovalStatus == ApprovalStatus.Pending ? "fa-clock" : 
+                                                                                                                                                                                                                                                                                                                                Model.ApprovalStatus == ApprovalStatus.Approved ? "fa-check" : "fa-times") me - 1"></i>
+                            @Model.ApprovalStatus
                         </span>
                     </div>
                     @if (Model.ApprovedBy != null)
@@ -28,7 +34,7 @@
                         <div class="text-muted bg-white px-3 py-2 rounded-3 shadow-sm">
                             <i class="fas fa-user-check me-1"></i>
                             Phê duyệt bởi: <span class="fw-bold">@Model.ApprovedBy.AccountName</span>
-                            <br/>
+                            <br />
                             <i class="fas fa-calendar-check me-1"></i>
                             Vào: <span class="fw-bold">@Model.ApprovedDate?.ToString("dd/MM/yyyy HH:mm")</span>
                         </div>
@@ -48,7 +54,8 @@
                             <label asp-for="NewsTitle" class="control-label form-label fw-bold">
                                 <i class="fas fa-heading text-primary me-1"></i> Tiêu đề
                             </label>
-                            <input asp-for="NewsTitle" class="form-control form-control-lg rounded-3 shadow-sm" placeholder="Nhập tiêu đề bài viết..." />
+                            <input asp-for="NewsTitle" class="form-control form-control-lg rounded-3 shadow-sm"
+                                placeholder="Nhập tiêu đề bài viết..." />
                             <span asp-validation-for="NewsTitle" class="text-danger"></span>
                         </div>
                     </div>
@@ -64,7 +71,8 @@
                                     {
                                         @foreach (var item in ViewBag.CategoryId as IEnumerable<SelectListItem>)
                                         {
-                                            <option value="@item.Value" selected="@(item.Value == Model.CategoryId.ToString())">@item.Text</option>
+                                            <option value="@item.Value" selected="@(item.Value == Model.CategoryId.ToString())">
+                                                @item.Text</option>
                                         }
                                     }
                                 </select>
@@ -78,7 +86,8 @@
                     <label asp-for="Headline" class="control-label form-label fw-bold">
                         <i class="fas fa-quote-left text-primary me-1"></i> Tóm tắt
                     </label>
-                    <textarea asp-for="Headline" class="form-control rounded-3 shadow-sm" placeholder="Tóm tắt ngắn gọn nội dung..." rows="2"></textarea>
+                    <textarea asp-for="Headline" class="form-control rounded-3 shadow-sm"
+                        placeholder="Tóm tắt ngắn gọn nội dung..." rows="2"></textarea>
                     <span asp-validation-for="Headline" class="text-danger"></span>
                 </div>
 
@@ -98,7 +107,8 @@
                             <label asp-for="NewsSource" class="control-label form-label fw-bold">
                                 <i class="fas fa-link text-primary me-1"></i> Nguồn tin
                             </label>
-                            <input asp-for="NewsSource" class="form-control rounded-3 shadow-sm" placeholder="Nguồn bài viết (nếu có)..." />
+                            <input asp-for="NewsSource" class="form-control rounded-3 shadow-sm"
+                                placeholder="Nguồn bài viết (nếu có)..." />
                             <span asp-validation-for="NewsSource" class="text-danger"></span>
                         </div>
                     </div>
@@ -107,9 +117,11 @@
                             <label asp-for="PublishDate" class="control-label form-label fw-bold">
                                 <i class="fas fa-calendar text-primary me-1"></i> Ngày xuất bản
                             </label>
-                            <input asp-for="PublishDate" type="datetime-local" class="form-control rounded-3 shadow-sm" />
+                            <input asp-for="PublishDate" type="datetime-local"
+                                class="form-control rounded-3 shadow-sm" />
                             <span asp-validation-for="PublishDate" class="text-danger"></span>
-                            <small class="text-muted fst-italic"><i class="fas fa-info-circle me-1"></i>Để trống nếu muốn xuất bản ngay</small>
+                            <small class="text-muted fst-italic"><i class="fas fa-info-circle me-1"></i>Để trống nếu
+                                muốn xuất bản ngay</small>
                         </div>
                     </div>
                 </div>
@@ -122,7 +134,8 @@
                                 <label class="control-label form-label fw-bold">
                                     <i class="fas fa-calendar-alt text-secondary me-1"></i> Ngày tạo
                                 </label>
-                                <input asp-for="CreatedDate" class="form-control bg-white rounded-3 shadow-sm" type="datetime-local" readonly />
+                                <input asp-for="CreatedDate" class="form-control bg-white rounded-3 shadow-sm"
+                                    type="datetime-local" readonly />
                             </div>
                         </div>
                         <div class="col-md-3">
@@ -130,7 +143,8 @@
                                 <label class="control-label form-label fw-bold">
                                     <i class="fas fa-calendar-alt text-secondary me-1"></i> Ngày chỉnh sửa
                                 </label>
-                                <input asp-for="ModifiedDate" class="form-control bg-white rounded-3 shadow-sm" type="datetime-local" readonly />
+                                <input asp-for="ModifiedDate" class="form-control bg-white rounded-3 shadow-sm"
+                                    type="datetime-local" readonly />
                             </div>
                         </div>
                         <div class="col-md-3">
@@ -138,7 +152,8 @@
                                 <label class="control-label form-label fw-bold">
                                     <i class="fas fa-user text-secondary me-1"></i> Người tạo
                                 </label>
-                                <select asp-for="CreatedById" class="form-select bg-white rounded-3 shadow-sm" asp-items="ViewBag.CreatedById" disabled></select>
+                                <select asp-for="CreatedById" class="form-select bg-white rounded-3 shadow-sm"
+                                    asp-items="ViewBag.CreatedById" disabled></select>
                             </div>
                         </div>
                         <div class="col-md-3">
@@ -146,7 +161,8 @@
                                 <label class="control-label form-label fw-bold">
                                     <i class="fas fa-user text-secondary me-1"></i> Người cập nhật
                                 </label>
-                                <select asp-for="UpdatedById" class="form-select bg-white rounded-3 shadow-sm" asp-items="ViewBag.UpdatedById" disabled></select>
+                                <select asp-for="UpdatedById" class="form-select bg-white rounded-3 shadow-sm"
+                                    asp-items="ViewBag.UpdatedById" disabled></select>
                             </div>
                         </div>
                     </div>
@@ -156,7 +172,8 @@
         <div class="card-footer bg-light">
             <div class="form-actions d-flex justify-content-between">
                 <div class="action-group">
-                    <a href="javascript:void(0)" class="btn btn-info rounded-pill shadow-sm preview-button me-2" onclick="previewDraft()">
+                    <a href="javascript:void(0)" class="btn btn-info rounded-pill shadow-sm preview-button me-2"
+                        onclick="previewDraft()">
                         <i class="fas fa-eye me-1"></i> Xem trước
                     </a>
                     <button type="button" class="btn btn-warning rounded-pill shadow-sm me-2" onclick="saveDraft()">
@@ -193,7 +210,7 @@
             })
             .then(newEditor => {
                 editor = newEditor;
-                
+
                 // Thêm style cho container của editor
                 const editorElement = document.querySelector('.ck-editor');
                 if (editorElement) {
@@ -213,6 +230,7 @@
         function publishArticle() {
             document.getElementById('saveAsDraft').value = 'false';
             document.getElementById('articleStatus').value = '@ArticleStatus.Published';
+            document.getElementById('editForm').submit();
         }
 
         function previewDraft() {
@@ -240,75 +258,85 @@
         margin: 2rem auto;
         animation: fadeIn 0.5s ease-in-out;
     }
-    
+
     .bg-gradient-primary {
         background: linear-gradient(135deg, #2c3e50, #3498db);
     }
-    
+
     .card-header {
         padding: 1.5rem;
     }
-    
+
     .form-title {
         font-weight: 600;
     }
-    
+
     .editor-container {
         border: 1px solid #dee2e6;
     }
-    
+
     .ck-editor {
         border: none !important;
     }
-    
+
     .ck-content {
         min-height: 300px;
     }
-    
+
     .rounded-pill {
         padding-left: 1.5rem;
         padding-right: 1.5rem;
     }
-    
+
     .btn {
         font-weight: 500;
         padding: 0.5rem 1.5rem;
         transition: all 0.3s;
     }
-    
+
     .btn:hover {
         transform: translateY(-2px);
     }
-    
+
     .action-group .btn {
         min-width: 120px;
     }
-    
-    @@keyframes fadeIn {
-        from { opacity: 0; transform: translateY(20px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
-    
-    .badge {
-        font-weight: 500;
-        font-size: 0.8rem;
-    }
-    
-    .metadata-section {
-        border-left: 4px solid #3498db;
-    }
-    
-    .control-label {
-        font-size: 0.9rem;
-    }
-    
-    .form-select, .form-control {
-        padding: 0.6rem 1rem;
-        transition: all 0.3s;
-    }
-    
-    .form-select:focus, .form-control:focus {
-        border-color: #3498db;
-        box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
-    }
-</style>
+
+    @@keyframes fadeIn
+    {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .badge {
+            font-weight: 500;
+            font-size: 0.8rem;
+        }
+
+        .metadata-section {
+            border-left: 4px solid #3498db;
+        }
+
+        .control-label {
+            font-size: 0.9rem;
+        }
+
+        .form-select,
+        .form-control {
+            padding: 0.6rem 1rem;
+            transition: all 0.3s;
+        }
+
+        .form-select:focus,
+        .form-control:focus {
+            border-color: #3498db;
+            box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
+        }
+    </style>

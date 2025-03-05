@@ -1,4 +1,4 @@
-﻿@using BusinessObjects.Models
+﻿﻿﻿﻿@using BusinessObjects.Models
 @model FUNewsManagementSystem.Helpers.PaginatedList<BusinessObjects.Models.NewsArticle>
 @{
     ViewData["Title"] = "Quản lý tin tức";
@@ -147,7 +147,7 @@
                 var nextDisabled = !Model.HasNextPage ? "disabled" : "";
             }
             <nav aria-label="Page navigation">
-                <ul class="pagination justify-content-center">
+                <ul class="pagination justify-content-center align-items-center">
                     <li class="page-item @prevDisabled">
                         <a class="page-link" asp-action="Index"
                            asp-route-sortOrder="@ViewData["CurrentSort"]"
@@ -168,6 +168,20 @@
                            asp-route-currentFilter="@ViewData["CurrentFilter"]">
                             <i class="fas fa-chevron-right"></i>
                         </a>
+                    </li>
+                    <li class="page-item ms-2">
+                        <div class="d-flex align-items-center goto-page-container">
+                            <input type="number" 
+                                   id="gotoPage" 
+                                   class="form-control goto-page-input" 
+                                   min="1" 
+                                   max="@Model.TotalPages" 
+                                   placeholder="Trang..." />
+                            <button onclick="gotoPage('@ViewData["CurrentSort"]', '@ViewData["CurrentFilter"]')" 
+                                    class="btn btn-primary goto-page-button">
+                                <i class="fas fa-arrow-right"></i>
+                            </button>
+                        </div>
                     </li>
                 </ul>
             </nav>
@@ -419,6 +433,35 @@
         border-color: #dee2e6;
     }
 
+    /* Goto page styles */
+    .goto-page-container {
+        gap: 0.5rem;
+    }
+
+    .goto-page-input {
+        width: 80px;
+        text-align: center;
+        border-radius: 6px;
+        border: 1px solid #e5e7eb;
+        padding: 0.4rem;
+    }
+
+    .goto-page-input:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.1);
+    }
+
+    .goto-page-button {
+        padding: 0.4rem 0.8rem;
+        border-radius: 6px;
+        transition: all 0.3s ease;
+    }
+
+    .goto-page-button:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.1);
+    }
+
     /* Animation classes */
     .fade-in {
         animation: fadeIn 0.5s ease-in;
@@ -471,3 +514,37 @@
 </style>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    function gotoPage(sortOrder, currentFilter) {
+        const pageInput = document.getElementById('gotoPage');
+        const pageNumber = parseInt(pageInput.value);
+        const maxPage = parseInt(pageInput.getAttribute('max'));
+        
+        if (pageNumber && pageNumber > 0 && pageNumber <= maxPage) {
+            const url = new URL(window.location.href);
+            url.searchParams.set('pageNumber', pageNumber);
+            
+            if (sortOrder) {
+                url.searchParams.set('sortOrder', sortOrder);
+            }
+            
+            if (currentFilter) {
+                url.searchParams.set('currentFilter', currentFilter);
+            }
+            
+            window.location.href = url.toString();
+        } else {
+            alert('Vui lòng nhập số trang hợp lệ từ 1 đến ' + maxPage);
+        }
+    }
+
+    // Thêm xử lý khi nhấn Enter trong input
+    document.getElementById('gotoPage').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            const sortOrder = '@ViewData["CurrentSort"]';
+            const currentFilter = '@ViewData["CurrentFilter"]';
+            gotoPage(sortOrder, currentFilter);
+        }
+    });
+</script>

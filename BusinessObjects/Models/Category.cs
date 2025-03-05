@@ -9,12 +9,16 @@ public partial class Category
     public short CategoryId { get; set; }
 
     [Required(ErrorMessage = "Category name is required")]
-    [StringLength(100, MinimumLength = 3, ErrorMessage = "Category name must be between 3 and 100 characters")]
+    [StringLength(
+        100,
+        MinimumLength = 3,
+        ErrorMessage = "Category name must be between 3 and 100 characters"
+    )]
     [Display(Name = "Category Name")]
     public string CategoryName { get; set; } = null!;
 
     [Required(ErrorMessage = "Category description is required")]
-    [StringLength(500, ErrorMessage = "Category description cannot exceed 500 characters")]
+    [StringLength(250, ErrorMessage = "Category description cannot exceed 500 characters")]
     [Display(Name = "Description")]
     public string CategoryDesciption { get; set; } = null!;
 

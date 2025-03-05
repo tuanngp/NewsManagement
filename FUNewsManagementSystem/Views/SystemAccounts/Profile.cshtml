@@ -4,51 +4,77 @@
     ViewData["Title"] = "Profile";
 }
 
-<div class="container">
-    <h2 class="my-4">Profile</h2>
-
-    @if (TempData["SuccessMessage"] != null)
-    {
-        <div class="alert alert-success">
-            @TempData["SuccessMessage"]
-        </div>
-    }
-
-    <div class="card">
-        <div class="card-body">
-            <form asp-action="UpdateProfile" method="post" asp-antiforgery="true">
-                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-                <input type="hidden" asp-for="AccountId" />
-                <input type="hidden" asp-for="AccountRole" />
-
-                <div class="form-group mb-3">
-                    <label asp-for="AccountName" class="control-label">Name</label>
-                    <input asp-for="AccountName" class="form-control" />
-                    <span asp-validation-for="AccountName" class="text-danger"></span>
+<div class="container py-5">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            @if (TempData["SuccessMessage"] != null)
+            {
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="fas fa-check-circle me-2"></i>
+                    @TempData["SuccessMessage"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
+            }
 
-                <div class="form-group mb-3">
-                    <label asp-for="AccountEmail" class="control-label">Email</label>
-                    <input asp-for="AccountEmail" class="form-control" type="email" />
-                    <span asp-validation-for="AccountEmail" class="text-danger"></span>
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-primary text-white py-3">
+                    <div class="d-flex align-items-center">
+                        <div class="rounded-circle bg-white text-primary d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+                            <i class="fas fa-user-circle fa-lg"></i>
+                        </div>
+                        <h3 class="m-0">Profile Settings</h3>
+                    </div>
                 </div>
+                <div class="card-body p-4">
+                    <form asp-action="UpdateProfile" method="post" asp-antiforgery="true">
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                        <input type="hidden" asp-for="AccountId" />
+                        <input type="hidden" asp-for="AccountRole" />
 
-                <div class="form-group mb-3">
-                    <label asp-for="AccountPassword" class="control-label">New Password</label>
-                    <input asp-for="AccountPassword" class="form-control" type="password" />
-                    <span asp-validation-for="AccountPassword" class="text-danger"></span>
-                    <small class="form-text text-muted">Leave blank to keep current password</small>
-                </div>
+                        <div class="form-group mb-4">
+                            <label asp-for="AccountName" class="form-label">
+                                <i class="fas fa-user me-2"></i>Name
+                            </label>
+                            <input asp-for="AccountName" class="form-control form-control-lg" placeholder="Enter your name" />
+                            <span asp-validation-for="AccountName" class="text-danger"></span>
+                        </div>
 
-                <div class="form-group">
-                    <button type="submit" class="btn btn-primary">Save Changes</button>
-                    <a asp-action="Index" asp-controller="Home" class="btn btn-secondary">Back to Home</a>
+                        <div class="form-group mb-4">
+                            <label asp-for="AccountEmail" class="form-label">
+                                <i class="fas fa-envelope me-2"></i>Email
+                            </label>
+                            <input asp-for="AccountEmail" class="form-control form-control-lg bg-light" type="email" readonly />
+                            <span asp-validation-for="AccountEmail" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group mb-4">
+                            <label asp-for="AccountPassword" class="form-label">
+                                <i class="fas fa-lock me-2"></i>New Password
+                            </label>
+                            <input asp-for="AccountPassword" class="form-control form-control-lg" type="password" placeholder="Enter new password" />
+                            <span asp-validation-for="AccountPassword" class="text-danger"></span>
+                            <small class="form-text text-muted">
+                                <i class="fas fa-info-circle me-1"></i>
+                                Leave blank to keep current password
+                            </small>
+                        </div>
+
+                        <div class="form-group d-flex gap-2 mt-5">
+                            <button type="submit" class="btn btn-primary btn-lg px-4">
+                                <i class="fas fa-save me-2"></i>Save Changes
+                            </button>
+                            <a asp-action="Index" asp-controller="Home" class="btn btn-outline-secondary btn-lg px-4">
+                                <i class="fas fa-arrow-left me-2"></i>Back to Home
+                            </a>
+                        </div>
+                    </form>
                 </div>
-            </form>
+            </div>
         </div>
     </div>
 </div>
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 }

@@ -162,13 +162,15 @@
 
         <div class="news-content">
             <div class="news-headline">@Model?.Headline</div>
-            <div class="news-body">@Model?.NewsContent</div>
+            <div class="news-body">
+                @Html.Raw(Model?.NewsContent)
+            </div>
         </div>
 
         @if (User.IsInRole("Staff"))
         {
             <div class="news-footer">
-                <span class="status-badge">@(Model?.NewsStatus ?? false ? "Xuất bản" : "Nháp")</span>
+                @* <span class="status-badge">@(Model?.NewsStatus ?? false ? "Xuất bản" : "Nháp")</span> *@
                 <div class="action-buttons">
                     <a asp-action="Edit" asp-route-id="@Model?.NewsArticleId" class="btn btn-edit">
                         <i class="fas fa-edit"></i> Edit

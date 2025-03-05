@@ -8,17 +8,25 @@ namespace BusinessObjects.Models;
 public partial class NewsArticle
 {
     [Required(ErrorMessage = "Article ID is required")]
-    [StringLength(50)]
+    [StringLength(20)]
     [Display(Name = "Article ID")]
     public string? NewsArticleId { get; set; } = null!;
 
     [Required(ErrorMessage = "Title is required")]
-    [StringLength(200, MinimumLength = 5, ErrorMessage = "Title must be between 5 and 200 characters")]
+    [StringLength(
+        400,
+        MinimumLength = 5,
+        ErrorMessage = "Title must be between 5 and 200 characters"
+    )]
     [Display(Name = "Title")]
     public string? NewsTitle { get; set; }
 
     [Required(ErrorMessage = "Headline is required")]
-    [StringLength(500, MinimumLength = 10, ErrorMessage = "Headline must be between 10 and 500 characters")]
+    [StringLength(
+        150,
+        MinimumLength = 10,
+        ErrorMessage = "Headline must be between 10 and 500 characters"
+    )]
     public string Headline { get; set; } = null!;
 
     [Display(Name = "Created Date")]
@@ -31,7 +39,7 @@ public partial class NewsArticle
     public string? NewsContent { get; set; }
 
     [Display(Name = "Source")]
-    [StringLength(200)]
+    [StringLength(400)]
     [Url(ErrorMessage = "Please enter a valid URL")]
     public string? NewsSource { get; set; }
 
@@ -50,7 +58,7 @@ public partial class NewsArticle
 
     [Display(Name = "Modified Date")]
     [DataType(DataType.DateTime)]
-    public DateTime? ModifiedDate { get; set; }
+    public DateTime? ModifiedDate { get; set; } = DateTime.Now;
 
     [Required]
     [Display(Name = "Article Status")]

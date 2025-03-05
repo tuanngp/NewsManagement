@@ -56,7 +56,10 @@ namespace FUNewsManagementSystem.Controllers
             ViewData["StatusSortParm"] = sortOrder == "Status" ? "status_desc" : "Status";
             ViewData["ApprovalSortParm"] = sortOrder == "Approval" ? "approval_desc" : "Approval";
 
-            var newsArticles = await _newsArticleService.GetAllAsync();
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var newsArticles = await _newsArticleService.GetAllNewsByCreatedId(
+                short.Parse(userId!)
+            );
 
             if (!String.IsNullOrEmpty(searchString))
             {
@@ -117,7 +120,6 @@ namespace FUNewsManagementSystem.Controllers
             return await HandleEntityAction(id, _newsArticleService.GetByIdAsync, "Details");
         }
 
-        // Action cho chức năng Preview
         [Authorize(Roles = "Staff, Admin")]
         public async Task<IActionResult> Preview(string id)
         {
@@ -128,7 +130,6 @@ namespace FUNewsManagementSystem.Controllers
             if (article == null)
                 return NotFound();
 
-            // Chỉ cho phép preview các bài viết draft
             if (article.Status != ArticleStatus.Draft)
             {
                 return RedirectToAction(nameof(Details), new { id });
@@ -137,7 +138,6 @@ namespace FUNewsManagementSystem.Controllers
             return View(article);
         }
 
-        // Action cho chức năng Review
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Review()
         {
@@ -149,7 +149,6 @@ namespace FUNewsManagementSystem.Controllers
             return View(pendingArticles);
         }
 
-        // Action cho chức năng Approve/Reject
         [Authorize(Roles = "Admin")]
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -209,16 +208,6 @@ namespace FUNewsManagementSystem.Controllers
                 {
                     newsArticle.Status = ArticleStatus.Draft;
                 }
-            }
-
-            if (!ModelState.IsValid)
-            {
-                await PrepareDropdownLists();
-                ModelState.AddModelError(
-                    "",
-                    "Có lỗi xảy ra khi tạo bài viết. Vui lòng kiểm tra lại."
-                );
-                return View(newsArticle);
             }
             return await HandleCreateUpdate(
                 newsArticle,
@@ -401,8 +390,6 @@ namespace FUNewsManagementSystem.Controllers
             string redirectAction
         )
         {
-            if (!ModelState.IsValid)
-                return View(entity);
             try
             {
                 await action(entity);
@@ -416,6 +403,7 @@ namespace FUNewsManagementSystem.Controllers
                     typeof(T).Name
                 );
                 ModelState.AddModelError("", "Đã xảy ra lỗi khi xử lý yêu cầu của bạn.");
+                await PrepareDropdownLists();
                 return View(entity);
             }
         }

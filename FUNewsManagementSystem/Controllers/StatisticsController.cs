@@ -1,8 +1,8 @@
+using System.Data;
+using BusinessObjects.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Services;
-using BusinessObjects.Models;
-using System.Data;
 
 namespace FUNewsManagementSystem.Controllers
 {
@@ -16,7 +16,8 @@ namespace FUNewsManagementSystem.Controllers
         public StatisticsController(
             INewsArticleService newsArticleService,
             ICategoryService categoryService,
-            ISystemAccountService accountService)
+            ISystemAccountService accountService
+        )
         {
             _newsArticleService = newsArticleService;
             _categoryService = categoryService;
@@ -31,7 +32,7 @@ namespace FUNewsManagementSystem.Controllers
 
             ViewBag.TotalArticles = newsArticles.Count();
             ViewBag.TotalCategories = categories.Count();
-            ViewBag.TotalAuthors = accounts.Count(a => a.AccountRole == 2); // Assuming 2 is Staff role
+            ViewBag.TotalAuthors = accounts.Count(a => a.AccountRole == 2);
 
             // Thống kê bài viết theo trạng thái
             ViewBag.PublishedArticles = newsArticles.Count(n => n.NewsStatus == true);
@@ -50,7 +51,7 @@ namespace FUNewsManagementSystem.Controllers
                 .Select(a => new
                 {
                     Name = a.AccountName,
-                    Count = newsArticles.Count(n => n.CreatedById == a.AccountId)
+                    Count = newsArticles.Count(n => n.CreatedById == a.AccountId),
                 });
 
             // Thống kê bài viết theo tháng trong năm hiện tại

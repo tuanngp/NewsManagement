@@ -2,7 +2,4 @@
 
 namespace Repositories;
 
-public interface ISystemAccountRepository : IRepository<SystemAccount, short>
-{
-    
-}
+public interface ISystemAccountRepository : IRepository<SystemAccount, short> { }

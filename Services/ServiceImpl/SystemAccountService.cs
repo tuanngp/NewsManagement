@@ -25,9 +25,15 @@ public class SystemAccountService : ISystemAccountService
         return _systemAccountRepository.GetByIdAsync(id);
     }
 
-    public Task<SystemAccount> AddAsync(SystemAccount entity)
+    public async Task<SystemAccount> AddAsync(SystemAccount entity)
     {
-        return _systemAccountRepository.AddAsync(entity);
+        entity.AccountId = (short)(GetMaxId() + 1);
+        return await _systemAccountRepository.AddAsync(entity);
+    }
+
+    public short GetMaxId()
+    {
+        return _systemAccountRepository.GetQueryable().Max(e => e!.AccountId);
     }
 
     public Task<SystemAccount> UpdateAsync(SystemAccount entity)
