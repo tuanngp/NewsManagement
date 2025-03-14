@@ -1,4 +1,4 @@
-﻿using BusinessObjects.Models;
+﻿﻿using BusinessObjects.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -18,10 +18,32 @@ namespace FUNewsManagementSystem.Controllers
             _logger = logger;
         }
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string searchString, string currentFilter, int? pageNumber)
         {
+            ViewData["CurrentSort"] = "";
+            
+            if (searchString != null)
+            {
+                pageNumber = 1;
+            }
+            else
+            {
+                searchString = currentFilter;
+            }
+
+            ViewData["CurrentFilter"] = searchString;
+
             var tags = await _tagService.GetAllAsync();
-            return View(tags);
+
+            if (!String.IsNullOrEmpty(searchString))
+            {
+                tags = tags.Where(t => t.TagName.Contains(searchString, StringComparison.OrdinalIgnoreCase)
+                                  || t.Note.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+                          .ToList();
+            }
+
+            int pageSize = 10;
+            return View(await Helpers.PaginatedList<Tag>.CreateAsync(tags.AsQueryable(), pageNumber ?? 1, pageSize));
         }
 
         public async Task<IActionResult> Details(int? id)

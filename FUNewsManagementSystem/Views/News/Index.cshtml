@@ -1,4 +1,4 @@
-﻿﻿﻿﻿@using BusinessObjects.Models
+﻿﻿﻿﻿﻿﻿﻿﻿@using BusinessObjects.Models
 @model FUNewsManagementSystem.Helpers.PaginatedList<BusinessObjects.Models.NewsArticle>
 @{
     ViewData["Title"] = "Quản lý tin tức";
@@ -156,11 +156,60 @@
                             <i class="fas fa-chevron-left"></i>
                         </a>
                     </li>
-                    <li class="page-item">
-                        <span class="page-link">
-                            Trang @Model.PageIndex / @Model.TotalPages
-                        </span>
-                    </li>
+
+                    @{
+                        const int totalNumbers = 5;
+                        int start = Math.Max(1, Model.PageIndex - 2);
+                        int end = Math.Min(start + totalNumbers - 1, Model.TotalPages);
+
+                        if (end - start + 1 < totalNumbers)
+                        {
+                            start = Math.Max(1, end - totalNumbers + 1);
+                        }
+                    }
+
+                    @if (start > 1)
+                    {
+                        <li class="page-item">
+                            <a class="page-link" asp-action="Index"
+                               asp-route-sortOrder="@ViewData["CurrentSort"]"
+                               asp-route-pageNumber="1"
+                               asp-route-currentFilter="@ViewData["CurrentFilter"]">1</a>
+                        </li>
+                        if (start > 2)
+                        {
+                            <li class="page-item disabled">
+                                <span class="page-link">...</span>
+                            </li>
+                        }
+                    }
+
+                    @for (int i = start; i <= end; i++)
+                    {
+                        <li class="page-item @(i == Model.PageIndex ? "active" : "")">
+                            <a class="page-link" asp-action="Index"
+                               asp-route-sortOrder="@ViewData["CurrentSort"]"
+                               asp-route-pageNumber="@i"
+                               asp-route-currentFilter="@ViewData["CurrentFilter"]">@i</a>
+                        </li>
+                    }
+
+                    @if (end < Model.TotalPages)
+                    {
+                        if (end < Model.TotalPages - 1)
+                        {
+                            <li class="page-item disabled">
+                                <span class="page-link">...</span>
+                            </li>
+                        }
+                        <li class="page-item">
+                            <a class="page-link" asp-action="Index"
+                               asp-route-sortOrder="@ViewData["CurrentSort"]"
+                               asp-route-pageNumber="@Model.TotalPages"
+                               asp-route-currentFilter="@ViewData["CurrentFilter"]">@Model.TotalPages</a>
+                        </li>
+                    }
+
                     <li class="page-item @nextDisabled">
                         <a class="page-link" asp-action="Index"
                            asp-route-sortOrder="@ViewData["CurrentSort"]"
@@ -418,12 +467,21 @@
         color: var(--primary-color);
         border-color: #e5e7eb;
         padding: 0.5rem 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 40px;
+        height: 40px;
+        margin: 0 2px;
+        font-weight: 500;
+        transition: all 0.2s ease;
     }
 
         .page-link:hover:not(.disabled) {
             background-color: var(--primary-color);
             color: white;
             border-color: var(--primary-color);
+            transform: translateY(-2px);
         }
 
     .page-item.disabled .page-link {
@@ -431,6 +489,19 @@
         pointer-events: none;
         background-color: #e9ecef;
         border-color: #dee2e6;
+    }
+
+    .page-item.active .page-link {
+        background-color: var(--primary-color);
+        border-color: var(--primary-color);
+        color: white;
+        font-weight: 600;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
+
+    .pagination {
+        gap: 2px;
     }
 
     /* Goto page styles */
