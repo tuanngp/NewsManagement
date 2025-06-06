@@ -1,0 +1,109 @@
+@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Quản lý tài khoản";
+}
+
+<h1>Quản lý tài khoản</h1>
+
+<p>
+    <a asp-page="Create" class="btn btn-success">Tạo mới</a>
+</p>
+
+<form asp-page="./Index" method="get">
+    <div class="form-actions no-color">
+        <p>
+            Tìm kiếm: <input type="text" name="SearchString" value="@Model.CurrentFilter" />
+            <input type="submit" value="Tìm" class="btn btn-primary" /> |
+            <a asp-page="./Index">Xem tất cả</a>
+        </p>
+    </div>
+</form>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                <a asp-page="./Index" asp-route-sortOrder="@Model.NameSort">
+                    Tên tài khoản
+                </a>
+            </th>
+            <th>
+                <a asp-page="./Index" asp-route-sortOrder="@Model.EmailSort">
+                    Email
+                </a>
+            </th>
+            <th>
+                <a asp-page="./Index" asp-route-sortOrder="@Model.RoleSort">
+                    Vai trò
+                </a>
+            </th>
+            <th>Thao tác</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.SystemAccounts)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.AccountName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.AccountEmail)
+                </td>
+                <td>
+                    @{
+                        string roleName = item.AccountRole switch
+                        {
+                            0 => "Admin",
+                            1 => "Staff",
+                            2 => "Lecturer",
+                            _ => "Unknown"
+                        };
+                    }
+                    @roleName
+                </td>
+                <td>
+                    <a asp-page="./Edit" asp-route-id="@item.AccountId">Sửa</a> |
+                    <a asp-page="./Details" asp-route-id="@item.AccountId">Chi tiết</a> |
+                    <a asp-page="./Delete" asp-route-id="@item.AccountId">Xóa</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@{
+    var prevDisabled = !Model.SystemAccounts.HasPreviousPage ? "disabled" : "";
+    var nextDisabled = !Model.SystemAccounts.HasNextPage ? "disabled" : "";
+}
+
+<div class="pagination-container">
+    <a asp-page="./Index"
+       asp-route-sortOrder="@Model.CurrentSort"
+       asp-route-pageIndex="@(Model.SystemAccounts.PageIndex - 1)"
+       asp-route-currentFilter="@Model.CurrentFilter"
+       class="btn btn-primary @prevDisabled">
+        Trước
+    </a>
+    <a asp-page="./Index"
+       asp-route-sortOrder="@Model.CurrentSort"
+       asp-route-pageIndex="@(Model.SystemAccounts.PageIndex + 1)"
+       asp-route-currentFilter="@Model.CurrentFilter"
+       class="btn btn-primary @nextDisabled">
+        Tiếp
+    </a>
+</div>
+
+<style>
+    .pagination-container {
+        margin-top: 20px;
+        display: flex;
+        gap: 10px;
+    }
+    
+    .btn.disabled {
+        pointer-events: none;
+        opacity: 0.6;
+    }
+</style> 

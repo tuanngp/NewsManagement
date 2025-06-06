@@ -1,4 +1,5 @@
 ﻿using BusinessObjects.Models;
+using FUNewsManagementSystem.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.EntityFrameworkCore;
@@ -6,7 +7,6 @@ using Repositories;
 using Repositories.RepositoryImpl;
 using Services;
 using Services.ServiceImpl;
-using FUNewsManagementSystem.Services;
 
 namespace FUNewsManagementSystem
 {
@@ -16,6 +16,9 @@ namespace FUNewsManagementSystem
         {
             var builder = WebApplication.CreateBuilder(args);
 
+            // Add support for Razor Pages
+            builder.Services.AddRazorPages();
+            // Keep MVC support temporarily during migration
             builder.Services.AddControllersWithViews();
 
             builder.Services.AddDbContext<FunewsManagementContext>(options =>
@@ -35,9 +38,9 @@ namespace FUNewsManagementSystem
                 })
                 .AddCookie(options =>
                 {
-                    options.LoginPath = "/SystemAccounts/Login";
-                    options.LogoutPath = "/SystemAccounts/Logout";
-                    options.AccessDeniedPath = "/Home/AccessDenied";
+                    options.LoginPath = "/Account/Login";
+                    options.LogoutPath = "/Account/Logout";
+                    options.AccessDeniedPath = "/AccessDenied";
                     options.ExpireTimeSpan = TimeSpan.FromMinutes(30);
                     options.SlidingExpiration = true; // Gia hạn nếu người dùng hoạt động
                     options.Cookie.HttpOnly = true; // Bảo mật cookie
@@ -71,7 +74,7 @@ namespace FUNewsManagementSystem
 
             if (!app.Environment.IsDevelopment())
             {
-                app.UseExceptionHandler("/Home/Error");
+                app.UseExceptionHandler("/Error");
                 app.UseHsts();
             }
 
@@ -83,6 +86,9 @@ namespace FUNewsManagementSystem
             app.UseAuthentication();
             app.UseAuthorization();
 
+            // Add Razor Pages endpoints
+            app.MapRazorPages();
+            // Keep MVC routes temporarily during migration
             app.MapControllerRoute(name: "default", pattern: "{controller=Home}/{action=Index}");
 
             app.Run();

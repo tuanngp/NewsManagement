@@ -1,0 +1,108 @@
+@page
+@model ProfileModel
+@{
+    ViewData["Title"] = "Hồ sơ cá nhân";
+}
+
+<div class="profile-container">
+    <h2>Hồ sơ cá nhân</h2>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success">
+            @TempData["SuccessMessage"]
+        </div>
+    }
+
+    <div class="profile-info">
+        <div class="info-item">
+            <span class="label">Tên:</span>
+            <span class="value">@Model.Account.AccountName</span>
+        </div>
+        <div class="info-item">
+            <span class="label">Email:</span>
+            <span class="value">@Model.Account.AccountEmail</span>
+        </div>
+        <div class="info-item">
+            <span class="label">Vai trò:</span>
+            <span class="value">
+                @{
+                    string roleName = Model.Account.AccountRole switch
+                    {
+                        0 => "Admin",
+                        1 => "Staff",
+                        2 => "Lecturer",
+                        _ => "Unknown"
+                    };
+                }
+                @roleName
+            </span>
+        </div>
+    </div>
+
+    <div class="update-section">
+        <h3>Cập nhật thông tin</h3>
+        <form method="post">
+            <input type="hidden" asp-for="Account.AccountId" />
+            <input type="hidden" asp-for="Account.AccountRole" />
+            <div class="form-group">
+                <label asp-for="Account.AccountName">Tên</label>
+                <input asp-for="Account.AccountName" class="form-control" />
+                <span asp-validation-for="Account.AccountName" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Account.AccountPassword">Mật khẩu mới</label>
+                <input asp-for="Account.AccountPassword" type="password" class="form-control" />
+                <span asp-validation-for="Account.AccountPassword" class="text-danger"></span>
+                <small class="form-text text-muted">Để trống nếu không muốn thay đổi mật khẩu.</small>
+            </div>
+            <button type="submit" class="btn btn-primary">Cập nhật</button>
+        </form>
+    </div>
+</div>
+
+<style>
+    .profile-container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 2rem;
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    }
+
+    .profile-info {
+        margin: 2rem 0;
+        padding: 1.5rem;
+        background: #f8f9fa;
+        border-radius: 8px;
+    }
+
+    .info-item {
+        margin-bottom: 1rem;
+        display: flex;
+    }
+
+    .label {
+        font-weight: bold;
+        width: 100px;
+    }
+
+    .update-section {
+        margin-top: 2rem;
+        padding-top: 2rem;
+        border-top: 1px solid #dee2e6;
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .btn-primary {
+        padding: 0.5rem 2rem;
+    }
+</style>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+} 
